@@ -71,7 +71,7 @@ def gen_jenkins_pipeline():
     git_actions(file_path, project_name, app_name, env)
 
     result = {
-        "Repository URL": git_saved_url,
+        "Repository URL": "https://github.com/gnosis-xian/jenkins-pipeline-scripts.git",
         "Branch Specifier": "*/master",
         "Script Path": file_path
     }
