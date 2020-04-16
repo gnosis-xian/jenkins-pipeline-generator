@@ -1,0 +1,31 @@
+POST http://127.0.0.1:5000/gen-jenkins-pipeline/java-api HTTP/1.1
+Content-Type: application/json
+
+{
+    "namespace": "yto",
+    "project_name": "share",
+    "jenkins_properties": {
+        "git_url": "git@10.1.193.100:YTO-eCommerce/ec-commerce/share/share-app-server.git",
+        "maven_home": "/home/gnosis/apache-maven-3.6.1/bin/mvn",
+        "maven_settings_file_path": "/home/gnosis/apache-maven-3.6.1/conf/yto/settings_yto_new.xml",
+        "java_home": "/usr/java/jdk_8u231/bin/java",
+        "target_hosts": [
+            ["192.168.207.49", "22"],
+            ["192.168.207.49", "22"]
+        ],
+        "app_name": "share-app",
+        "env": "test",
+        "app_home": "/root",
+        "branch": "master",
+        "type": "application",
+        "project_version": "1.0.0-SNAPSHOT",
+        "host_user": "root",
+        "git_credentials_id": "gaojing-gitlab",
+        "deploy_sleep_seconds": 0,
+        "is_backup": true,
+        "to_tag": false,
+        "code_static_check": false,
+        "unit_test": false,
+        "maven_package": true
+    }
+}
