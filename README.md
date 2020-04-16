@@ -34,7 +34,7 @@ Just some steps to configuration. It will be work will.
     
     [OPTION] Check or not.
     
-    ```http request
+    ```text
     {
         # [MUST]
         "namespace": "demo",
