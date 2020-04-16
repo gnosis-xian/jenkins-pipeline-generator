@@ -118,7 +118,9 @@ Install pipeline plugin named **Pipeline** with Jenkins **Manage Plugins**.
 
 ### 2. Can't pull with git.
 
-Check **git_credentials_id** parameter. And it has config in Jenkins **Credentials**.
+- Check **git_credentials_id** parameter. And it has config in Jenkins **Credentials**.
+
+- Check git_url is right.
 
 ## Contributors.
 
