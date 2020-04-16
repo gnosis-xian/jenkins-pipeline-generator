@@ -28,43 +28,59 @@ Just some steps to configuration. It will be work will.
 
 4. Demo Request 
 
-More detail request [click this](./restclient/rest-test.rest).
-
-[MUST] Important check.
-
-[NEED] Suggest check.
-
-[OPTION] Check or not.
+    [MUST] Important check.
+    
+    [NEED] Suggest check.
+    
+    [OPTION] Check or not.
     
     ```http request
-    POST http://gnosis.gq:5000/gen-jenkins-pipeline/java-api HTTP/1.1
-    Content-Type: application/json
-    
     {
+        # [MUST]
         "namespace": "demo",
+        # [MUST]
         "project_name": "share",
         "jenkins_properties": {
+            # [MUST]
             "git_url": "git@github.com:gnosis-xian/jenkins-pipeline-generator.git",
+            # [MUST]
+            "branch": "master",
+            # [MUST] Jenkins host maven location.
             "maven_home": "/home/gnosis/apache-maven-3.6.1/bin/mvn",
+            # [MUST] Jenkins host maven config file path.
             "maven_settings_file_path": "/home/gnosis/apache-maven-3.6.1/conf/yto/settings_yto_new.xml",
+            # [MUST] Java execute command on your target deploy host
             "java_home": "/usr/java/jdk_8u231/bin/java",
+            # [MUST] Hosts you want to deploy. list[0] is host ip, list[1] is host port. Do not use 22 port recommend.
             "target_hosts": [
                 ["192.168.207.49", "22"],
                 ["192.168.207.49", "22"]
             ],
+            # [MUST] Application name
             "app_name": "share-app",
+            # [MUST] Project environment
             "env": "uat",
+            # [NEED] CD hosts application home path.
             "app_home": "/root",
-            "branch": "master",
+            # [MUST] Application or controller, and it decided by maven configuration.
             "type": "application",
+            # [MUST] Project version, also decided by maven configuration.
             "project_version": "1.0.0-SNAPSHOT",
+            # [NEED] Deploy host user.
             "host_user": "root",
+            # [MUST] Credentials in Jenkins. It make sure you can clone you code via git. You should config it in your Jenkins.
             "git_credentials_id": "gaojing-yto-gitlab",
+            # [OPTION] Segement time in multi deployed.
             "deploy_sleep_seconds": 0,
-            "is_backup": true,
+            # [OPTION] Backup oldder application package?
+            "is_backup": false,
+            # [OPTION] Tag your project with current branch?
             "to_tag": false,
+            # [OPTION] Code static check? NOT IMPELEMENT.
             "code_static_check": false,
+            # [OPTION] Unit test? NOT IMPELEMENT.
             "unit_test": false,
+            # [OPTION] Package via maven?
             "maven_package": true
         }
     }
