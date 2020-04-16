@@ -86,7 +86,7 @@ Just some steps to configuration. It will be work will.
     }
     ```
 
-5. Create a new project in Jenkins use response.
+5. Use response to create a new project in Jenkins.
 
     Response:
     
