@@ -1,24 +1,24 @@
-node {
-    git_url = ${{git_url}}
-    maven_home = ${{maven_home}}
-    maven_settings_file_path = ${{maven_settings_file_path}}
-    java_home = ${{java_home}}
-    target_hosts = ${{target_hosts}}
-    app_name = ${{app_name}}
-    env = ${{env}}
-    app_home = ${{app_home}}
-    branch = ${{branch}}
-    type = ${{type}}
-    project_version = ${{project_version}}
-    host_user = ${{host_user}}
-    git_credentials_id = ${{git_credentials_id}}
-    deploy_sleep_seconds = ${{deploy_sleep_seconds}}
-    is_backup = ${{is_backup}}
-    to_tag = ${{to_tag}}
-    code_static_check = ${{code_static_check}}
-    unit_test = ${{unit_test}}
-    maven_package = ${{maven_package}}
+git_url = ${{git_url}}
+maven_home = ${{maven_home}}
+maven_settings_file_path = ${{maven_settings_file_path}}
+java_home = ${{java_home}}
+target_hosts = ${{target_hosts}}
+app_name = ${{app_name}}
+env = ${{env}}
+app_home = ${{app_home}}
+branch = ${{branch}}
+type = ${{type}}
+project_version = ${{project_version}}
+host_user = ${{host_user}}
+git_credentials_id = ${{git_credentials_id}}
+deploy_sleep_seconds = ${{deploy_sleep_seconds}}
+is_backup = ${{is_backup}}
+to_tag = ${{to_tag}}
+code_static_check = ${{code_static_check}}
+unit_test = ${{unit_test}}
+maven_package = ${{maven_package}}
 
+node {
     stage('Pull Code') {
         git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
         echo "Pulled $git_url branch: $branch ."
@@ -26,7 +26,7 @@ node {
 
     if (to_tag) {
         stage("Tag to Git") {
-            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
+            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M`"
             tag_name = "tag_from_" + branch + "_for_" + env + "_at_" + now_time
             sh "git tag $tag_name"
             sh "git push origin $tag_name"
@@ -47,7 +47,7 @@ node {
     }
 
     if (is_backup) {
-        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
+        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M`"
         target_hosts.each { e ->
             host = e[0]
             port = e[1]

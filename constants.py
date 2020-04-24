@@ -1,6 +1,8 @@
 git_saved_url = "git@github.com:gnosis-xian/jenkins-pipeline-scripts.git"
 git_saved_location = "jenkins-pipeline-scripts"
 
+lock_file = "lock.lock"
+
 maven_home = '/home/gnosis/apache-maven-3.6.1/bin/mvn'
 maven_settings_file_path = '/home/gnosis/apache-maven-3.6.1/conf/yto/settings_yto_new.xml'
 java_home = 'java'

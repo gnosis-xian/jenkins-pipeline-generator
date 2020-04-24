@@ -26,7 +26,7 @@ if __name__ == '__main__':
     map = json.loads(map_str)
     print(map["list"][0]["host"])
 
-    file = open("../template/jenkins-pipeline.groovy")
+    file = open("../template/jenkins-pipeline-java-api.groovy")
     file_content = file.read()
     file_content = file_content.replace("${{git_url}}", "http://github.com/")
     print(file_content)

@@ -10,6 +10,20 @@ It will help you to create the application CD workflow on jenkins.
 
 Just some steps to configuration. It will be work will.
 
+## Update Information
+
+### 2020-4-17
+
+- Init project.
+- Complete Java API jenkins pipeline generator.
+
+### 2020-4-24
+
+- Complete Web jenkins pipeline generator.
+- Add **lock** util to prevent request when another process is working.
+- SCM url can be define by user.
+- SCM url can be multiply.
+
 ## Quick Start
 
 1. Install Python version over 2.X;
@@ -26,7 +40,12 @@ Just some steps to configuration. It will be work will.
     python startup.py
     ```
 
-4. Demo Request 
+4. Demo Request
+
+    **The newest request demo file will be present in
+    [java-api](./restclient/newest-rest-java.rest)
+    and
+    [web](./restclient/newest-rest-web.rest).**
 
     [MUST] Important check.
     
@@ -40,7 +59,12 @@ Just some steps to configuration. It will be work will.
         "namespace": "demo",
         # [MUST]
         "project_name": "share",
-        "jenkins_properties": {
+        # [MUST] jenkins pipeline file commit url.
+        "scm_urls": [
+            "git@github.com:gnosis-xian/jenkins-pipeline-scripts.git",
+            "git@gitee.com:accessgnosis/jenkins-pipeline-scripts.git"
+        ],
+        "jenkins_properties": [{
             # [MUST]
             "git_url": "git@github.com:gnosis-xian/jenkins-pipeline-generator.git",
             # [MUST]
@@ -82,7 +106,7 @@ Just some steps to configuration. It will be work will.
             "unit_test": false,
             # [OPTION] Package via maven?
             "maven_package": true
-        }
+        }]
     }
     ```
 
