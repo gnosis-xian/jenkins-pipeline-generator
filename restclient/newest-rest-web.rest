@@ -1,0 +1,68 @@
+# Request
+POST http://{{URL}}/gen-jenkins-pipeline/web HTTP/1.1
+Content-Type: application/json
+
+{
+    "namespace": "demo",
+    "project_name": "share",
+    "scm_urls": [
+        # "git@github.com:gnosis-xian/jenkins-pipeline-scripts.git",
+        # "git@gitee.com:accessgnosis/jenkins-pipeline-scripts.git"
+        "git@gitee.com:accessgnosis/jenkins-files.git"
+    ],
+    "jenkins_properties": [
+        {
+            "git_url": "git@github.com:gnosis-xian/jenkins-pipeline-generator.git",
+            "branch": "master",
+            "npm_home": "/usr/bin/npm",
+            "yarn_home": "/usr/local/yarn-v1.22.4/bin/yarn",
+            "target_hosts": [
+                ["192.168.207.49", "22"],
+                ["192.168.207.49", "22"]
+            ],
+            "app_name": "share-app",
+            "env": "test",
+            "app_home": "/root",
+            "npm_registry_url": "",
+            "host_user": "root",
+            "git_credentials_id": "gaojing-yto-gitlab",
+            "package_type": "npm",
+            "is_backup": false,
+            "deploy_sleep_seconds": 0,
+            "to_tag": false,
+            "to_compile": true
+        },
+        {
+            "git_url": "git@github.com:gnosis-xian/jenkins-pipeline-generator.git",
+            "branch": "master",
+            "npm_home": "/usr/bin/npm",
+            "yarn_home": "/usr/local/yarn-v1.22.4/bin/yarn",
+            "target_hosts": [
+                ["192.168.207.49", "22"],
+                ["192.168.207.49", "22"]
+            ],
+            "app_name": "share-app",
+            "env": "dev",
+            "app_home": "/root",
+            "npm_registry_url": "",
+            "host_user": "root",
+            "git_credentials_id": "gaojing-yto-gitlab",
+            "package_type": "npm",
+            "is_backup": false,
+            "deploy_sleep_seconds": 0,
+            "to_tag": false,
+            "to_compile": true
+        }
+    ]
+}
+# Response
+{
+  "Repository URL": [
+    "https://gitee.com/accessgnosis/jenkins-files.git"
+  ],
+  "Branch Specifier": "*/master",
+  "Script Path": [
+    "demo/share-dev/web-share-app.groovy",
+    "demo/share-test/web-share-app.groovy"
+  ]
+}
