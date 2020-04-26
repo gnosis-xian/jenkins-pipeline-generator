@@ -40,6 +40,8 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{code_static_check}}", boolean_convertor(get_value_safty(params, 'code_static_check')))
     file_content = file_content.replace("${{unit_test}}", boolean_convertor(get_value_safty(params, 'unit_test')))
     file_content = file_content.replace("${{maven_package}}", boolean_convertor(get_value_safty(params, 'maven_package')))
+    file_content = file_content.replace("${{maven_install}}", boolean_convertor(get_value_safty(params, 'maven_install')))
+    file_content = file_content.replace("${{to_deploy}}", boolean_convertor(get_value_safty(params, 'to_deploy')))
 
     # web special.
     file_content = file_content.replace("${{npm_home}}", json.dumps(get_value_safty(params, 'npm_home')))

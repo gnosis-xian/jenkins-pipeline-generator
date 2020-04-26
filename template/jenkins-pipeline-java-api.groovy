@@ -17,6 +17,8 @@ to_tag = ${{to_tag}}
 code_static_check = ${{code_static_check}}
 unit_test = ${{unit_test}}
 maven_package = ${{maven_package}}
+maven_install = ${{maven_install}}
+to_deploy = ${{to_deploy}}
 
 node {
     stage('Pull Code') {
@@ -60,6 +62,13 @@ node {
         }
     }
 
+    if (maven_install) {
+        stage('Maven Install') {
+            sh "$maven_home clean install -DskipTest=true  --settings=$maven_yto_setting"
+            echo "Maven Clean and Install $app_name:$branch"
+        }
+    }
+
     if (maven_package) {
         stage('Compile') {
             sh "$maven_home clean package -Dmaven.test.skip=true --settings=$maven_settings_file_path -P $env"
@@ -67,37 +76,39 @@ node {
         }
     }
 
-    target_hosts.each { e ->
+    if (to_deploy) {
+        target_hosts.each { e ->
         count = 0;
         host = e[0]
         port = e[1]
 
         stage("Deploy to $host") {
-            echo "Begin to deploy $app_name to $host:$port ..."
+                echo "Begin to deploy $app_name to $host:$port ..."
 
-            /**
-             * Copy project file to target hosts.
-             */
-            copyProjectFileToTargetHosts(host, port)
+                /**
+                 * Copy project file to target hosts.
+                 */
+                copyProjectFileToTargetHosts(host, port)
 
-            /**
-             * Shutdown project process on target hosts.
-             */
-            killProjectProcessAtTargetHost(host, port)
+                /**
+                 * Shutdown project process on target hosts.
+                 */
+                killProjectProcessAtTargetHost(host, port)
 
-            /**
-             * Startup project process on target hosts.
-             */
-            startupProjectProcessAtTargetHost(host, port)
+                /**
+                 * Startup project process on target hosts.
+                 */
+                startupProjectProcessAtTargetHost(host, port)
 
-            echo "Deploy to $host finished."
+                echo "Deploy to $host finished."
 
-            /**
-             * Wait will the previous project startup.
-             */
-            if (++count != target_hosts.size()) {
-                echo "Wait $deploy_sleep_seconds and deploy application to next host."
-                sleep(deploy_sleep_seconds)
+                /**
+                 * Wait will the previous project startup.
+                 */
+                if (++count != target_hosts.size()) {
+                    echo "Wait $deploy_sleep_seconds and deploy application to next host."
+                    sleep(deploy_sleep_seconds)
+                }
             }
         }
     }
