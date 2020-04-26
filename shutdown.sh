@@ -1,0 +1,1 @@
+ps -aux | grep python | grep startup-jpg | awk '{print $2}' | xargs kill -9
