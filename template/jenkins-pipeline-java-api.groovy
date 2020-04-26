@@ -64,7 +64,7 @@ node {
 
     if (maven_install) {
         stage('Maven Install') {
-            sh "$maven_home clean install -DskipTest=true  --settings=$maven_yto_setting"
+            sh "$maven_home clean install -DskipTest=true  --settings=$maven_settings_file_path"
             echo "Maven Clean and Install $app_name:$branch"
         }
     }
