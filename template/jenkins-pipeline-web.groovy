@@ -32,7 +32,7 @@ node {
 
     stage('Pull Code') {
         git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
-        echo "Pulled $url branch: $branch ."
+        echo "Pulled $git_url branch: $branch ."
     }
 
     if (to_tag) {
