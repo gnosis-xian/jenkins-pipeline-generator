@@ -10,31 +10,28 @@ Content-Type: application/json
         "git@gitee.com:accessgnosis/jenkins-pipeline-scripts.git"
     ],
     "jenkins_properties": [
+        # java-api-common-dependency rest
         {
+            "app_name": "share-common",
             "git_url": "git@github.com:gnosis-xian/jenkins-pipeline-generator.git",
             "branch": "master",
             "maven_home": "/home/gnosis/apache-maven-3.6.1/bin/mvn",
-            "maven_settings_file_path": "/home/gnosis/apache-maven-3.6.1/conf/yto/settings_yto_new.xml",
-            "java_home": "/usr/java/jdk_8u231/bin/java",
-            "target_hosts": [
-                ["192.168.207.49", "22"],
-                ["192.168.207.49", "22"]
-            ],
-            "app_name": "share-app",
+            "maven_settings_file_path": "/home/gnosis/apache-maven-3.6.1/conf/yto/settings_yto_new_share.xml",
             "env": "uat",
             "app_home": "/root",
             "type": "application",
-            "project_version": "1.0.0-SNAPSHOT",
-            "host_user": "root",
             "git_credentials_id": "gaojing-yto-gitlab",
-            "deploy_sleep_seconds": 0,
             "is_backup": false,
             "to_tag": false,
             "code_static_check": false,
             "unit_test": false,
-            "maven_package": true
+            "maven_package": false,
+            "maven_install": true,
+            "to_deploy": false
         },
+        # java-api-jar rest
         {
+            "app_name": "share-app",
             "git_url": "git@github.com:gnosis-xian/jenkins-pipeline-generator.git",
             "branch": "master",
             "maven_home": "/home/gnosis/apache-maven-3.6.1/bin/mvn",
@@ -44,7 +41,6 @@ Content-Type: application/json
                 ["192.168.207.49", "22"],
                 ["192.168.207.49", "22"]
             ],
-            "app_name": "share-order",
             "env": "uat",
             "app_home": "/root",
             "type": "application",
@@ -56,7 +52,9 @@ Content-Type: application/json
             "to_tag": false,
             "code_static_check": false,
             "unit_test": false,
-            "maven_package": true
+            "maven_package": true,
+            "maven_install": false,
+            "to_deploy": true
         }
     ]
 }

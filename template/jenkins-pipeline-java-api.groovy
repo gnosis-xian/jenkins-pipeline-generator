@@ -2,6 +2,7 @@ git_url = ${{git_url}}
 maven_home = ${{maven_home}}
 maven_settings_file_path = ${{maven_settings_file_path}}
 java_home = ${{java_home}}
+java_opt = ${{java_opt}}
 target_hosts = ${{target_hosts}}
 app_name = ${{app_name}}
 env = ${{env}}
@@ -130,12 +131,15 @@ def killProjectProcessAtTargetHost(host, port) {
     echo "Kill $app_name process on $host:$port"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -9 \\\$(ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown.sh\'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'sudo chmod +x '$app_home'/shutdown.sh\'"
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/shutdown.sh\'"
+    try {
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/shutdown.sh\'"
+    } catch (Exception ignored) {
+    }
 }
 
 def startupProjectProcessAtTargetHost(host, port) {
     echo "Startup $app_name on %s:%s"
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \" sudo nohup '$java_home' -jar '$app_home'/'$app_name'.jar --spring.profiles.active='$env' > /dev/null 2>&1 & \" > '$app_home'/startup.sh \'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \" sudo nohup '$java_home' $java_opt -jar '$app_home'/'$app_name'.jar --spring.profiles.active='$env' > /dev/null 2>&1 & \" > '$app_home'/startup.sh \'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'sudo chmod +x '$app_home'/startup.sh\'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/startup.sh\'"
 }

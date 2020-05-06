@@ -53,6 +53,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
     maven_home = get_value_safty(jenkins_propertie, 'maven_home')
     maven_settings_file_path = get_value_safty(jenkins_propertie, 'maven_settings_file_path')
     java_home = get_value_safty(jenkins_propertie, 'java_home')
+    java_opt = get_value_safty(jenkins_propertie, 'java_opt')
     target_hosts = get_value_safty(jenkins_propertie, 'target_hosts')
     app_name = get_value_safty(jenkins_propertie, 'app_name')
     env = get_value_safty(jenkins_propertie, 'env')
@@ -77,6 +78,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
         maven_home=maven_home,
         maven_settings_file_path=maven_settings_file_path,
         java_home=java_home,
+        java_opt=java_opt,
         target_hosts=target_hosts,
         app_name=app_name,
         env=env,

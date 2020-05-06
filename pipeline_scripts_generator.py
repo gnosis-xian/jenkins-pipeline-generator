@@ -25,6 +25,7 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{maven_home}}", json.dumps(get_value_safty(params, 'maven_home')))
     file_content = file_content.replace("${{maven_settings_file_path}}", json.dumps(get_value_safty(params, 'maven_settings_file_path')))
     file_content = file_content.replace("${{java_home}}", json.dumps(get_value_safty(params, 'java_home')))
+    file_content = file_content.replace("${{java_opt}}", json.dumps(get_value_safty(params, 'java_opt')))
     file_content = file_content.replace("${{target_hosts}}", json.dumps(get_value_safty(params, 'target_hosts')))
     file_content = file_content.replace("${{app_name}}", json.dumps(get_value_safty(params, 'app_name')))
     file_content = file_content.replace("${{env}}", json.dumps(get_value_safty(params, 'env')))
