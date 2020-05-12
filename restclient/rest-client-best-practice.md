@@ -1,6 +1,8 @@
 # Rest Client
 
-Rest client file suffixed with .http.
+## Quick Start.
+
+Rest client file suffixed with .http or .rest.
 
 Use rest client plugin in VSCode to open it.
 
@@ -14,6 +16,6 @@ Rendering as below:
 
 ![Gitter](../imgs/rest-client-rendering.gif)
 
-# More
+## More
 
 [Best Practice With Shimako.](http://note.youdao.com/noteshare?id=ea26af4e82c333dddbed9b0330af0148&sub=wcp1566995451897797)
