@@ -13,11 +13,23 @@ app = Flask(__name__)
 
 @app.route('/gen-jenkins-pipeline/web', methods=['POST'])
 def gen_jenkins_pipeline_web():
-    return go(request, "web")
+    resultBody = None
+    try:
+        resultBody = go(request, "web")
+    except Exception as e:
+        print(e)
+        remove_lock()
+    return resultBody
 
 @app.route('/gen-jenkins-pipeline/java-api', methods=['POST'])
 def gen_jenkins_pipeline_api():
-    return go(request, "api")
+    resultBody = None
+    try:
+        resultBody = go(request, "api")
+    except Exception as e:
+        print(e)
+        remove_lock()
+    return resultBody
 
 def go(request, type):
     if locked():

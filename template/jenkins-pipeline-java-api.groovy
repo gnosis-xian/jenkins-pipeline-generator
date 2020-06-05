@@ -57,8 +57,12 @@ node {
             stage("Backup on $host") {
                 jar_path = "$app_home/$app_name" + ".jar"
                 baked_jar_path = "$jar_path.$now_time"
-                sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port cp $jar_path $baked_jar_path"
-                echo "Origin jar were backuped on $host:$baked_jar_path"
+                try {
+                    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port cp $jar_path $baked_jar_path"
+                    echo "Origin jar were backuped on $host:$baked_jar_path"
+                } catch (Exception ignored) {
+                    echo "Origin jar not exist. Ignored backup..."
+                }
             }
         }
     }
