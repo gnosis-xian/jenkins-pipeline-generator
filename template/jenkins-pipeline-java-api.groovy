@@ -126,7 +126,7 @@ def copyProjectFileToTargetHosts(host, port) {
         sh "$scp_command"
     } catch (Exception exp) {
         echo "Project dictionary were not created. Create dictionary on $host:$port:$app_home automatically."
-        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo mkdir -p $app_home"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port mkdir -p $app_home"
         sh "$scp_command"
     }
 }
