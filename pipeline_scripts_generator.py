@@ -36,6 +36,7 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{host_user}}", json.dumps(get_value_safty(params, 'host_user')))
     file_content = file_content.replace("${{git_credentials_id}}", json.dumps(get_value_safty(params, 'git_credentials_id')))
     file_content = file_content.replace("${{deploy_sleep_seconds}}", str(get_value_safty(params, 'deploy_sleep_seconds')))
+    file_content = file_content.replace("${{sleep_seconds_after_kill}}", str(get_value_safty(params, 'sleep_seconds_after_kill')))
     file_content = file_content.replace("${{is_backup}}", boolean_convertor(get_value_safty(params, 'is_backup')))
     file_content = file_content.replace("${{to_tag}}", boolean_convertor(get_value_safty(params, 'to_tag')))
     file_content = file_content.replace("${{code_static_check}}", boolean_convertor(get_value_safty(params, 'code_static_check')))

@@ -64,6 +64,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
     host_user = get_value_safty(jenkins_propertie, 'host_user')
     git_credentials_id = get_value_safty(jenkins_propertie, 'git_credentials_id')
     deploy_sleep_seconds = get_value_safty(jenkins_propertie, 'deploy_sleep_seconds')
+    sleep_seconds_after_kill = get_value_safty(jenkins_propertie, 'sleep_seconds_after_kill')
     is_backup = get_value_safty(jenkins_propertie, 'is_backup')
     to_tag = get_value_safty(jenkins_propertie, 'to_tag')
     code_static_check = get_value_safty(jenkins_propertie, 'code_static_check')
@@ -89,6 +90,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
         host_user=host_user,
         git_credentials_id=git_credentials_id,
         deploy_sleep_seconds=deploy_sleep_seconds,
+        sleep_seconds_after_kill=sleep_seconds_after_kill,
         is_backup=is_backup,
         to_tag=to_tag,
         code_static_check=code_static_check,

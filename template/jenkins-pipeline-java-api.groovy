@@ -13,6 +13,7 @@ project_version = ${{project_version}}
 host_user = ${{host_user}}
 git_credentials_id = ${{git_credentials_id}}
 deploy_sleep_seconds = ${{deploy_sleep_seconds}}
+sleep_seconds_after_kill = ${{sleep_seconds_after_kill}}
 is_backup = ${{is_backup}}
 to_tag = ${{to_tag}}
 code_static_check = ${{code_static_check}}
@@ -139,6 +140,9 @@ def killProjectProcessAtTargetHost(host, port) {
         sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/shutdown.sh\'"
     } catch (Exception ignored) {
     }
+
+    echo "Sleep $sleep_seconds_after_kill seconds after kill application process."
+    sleep(sleep_seconds_after_kill)
 }
 
 def startupProjectProcessAtTargetHost(host, port) {
