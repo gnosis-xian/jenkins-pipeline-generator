@@ -10,6 +10,14 @@ It will help you to create the application CD workflow on jenkins.
 
 Just some steps to configuration. It will be work will.
 
+## Collaborative Process
+
+After generate jenkins pipeline scripts. Github/Gitee features can be used for other project collaborators.
+
+Process diagram as below.
+
+![](./imgs/jenkins-pipeline-collaborative-process.png)
+
 ## Update Information
 
 ### 2020-4-17
@@ -23,6 +31,10 @@ Just some steps to configuration. It will be work will.
 - Add **lock** util to prevent request when another process is working.
 - SCM url can be define by user.
 - SCM url can be multiply.
+
+### 2020-7-1
+
+- Complete auto tag function for git.
 
 ## Quick Start
 
