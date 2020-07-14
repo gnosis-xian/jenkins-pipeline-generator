@@ -30,7 +30,7 @@ node {
 
     if (to_tag) {
         stage("Tag to Git") {
-            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M`"
+            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
             tag_name = "tag_from_" + branch + "_for_" + env + "_at_" + now_time
             sh "git tag $tag_name"
             sh "git push origin $tag_name"
@@ -51,7 +51,7 @@ node {
     }
 
     if (is_backup) {
-        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M`"
+        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
         target_hosts.each { e ->
             host = e[0]
             port = e[1]

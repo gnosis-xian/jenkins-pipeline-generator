@@ -37,7 +37,7 @@ node {
 
     if (to_tag) {
         stage("Tag to Git") {
-            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M`"
+            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
             tag_name = "tag_from_" + branch + "_for_" + env + "_at_" + now_time
             sh "git tag $tag_name"
             sh "git push origin $tag_name"
@@ -126,7 +126,7 @@ def cleanWebTar(host, port) {
 
 def backupWebTar(host, port) {
     stage("Backup on $host") {
-        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M`"
+        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
         backup_dir = "$app_home/backups"
         scp_command = "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port cp $app_home/app.tar $backup_dir/app.tar.$now_time"
         try {
