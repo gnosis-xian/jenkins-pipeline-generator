@@ -144,7 +144,7 @@ def clean_after_finished() {
 def delete_temp_branch() {
     try {
         sh "git checkout master"
-        sh "git branch -d tmp__branch____"
+        sh "git branch -D tmp__branch____"
     } catch (Exception exp) {
         echo "Delete temp branch throw exception"
     }
