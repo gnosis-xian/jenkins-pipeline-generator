@@ -59,6 +59,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
     env = get_value_safty(jenkins_propertie, 'env')
     app_home = get_value_safty(jenkins_propertie, 'app_home')
     branch = get_value_safty(jenkins_propertie, 'branch')
+    commit_id = get_value_safty(jenkins_propertie, 'commit_id')
     type = get_value_safty(jenkins_propertie, 'type')
     project_version = get_value_safty(jenkins_propertie, 'project_version')
     host_user = get_value_safty(jenkins_propertie, 'host_user')
@@ -85,6 +86,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
         env=env,
         app_home=app_home,
         branch=branch,
+        commit_id=commit_id,
         type=type,
         project_version=project_version,
         host_user=host_user,

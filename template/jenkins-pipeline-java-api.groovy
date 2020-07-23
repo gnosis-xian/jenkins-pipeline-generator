@@ -8,6 +8,7 @@ app_name = ${{app_name}}
 env = ${{env}}
 app_home = ${{app_home}}
 branch = ${{branch}}
+commit_id = ${{commit_id}}
 type = ${{type}}
 project_version = ${{project_version}}
 host_user = ${{host_user}}
@@ -23,18 +24,30 @@ maven_install = ${{maven_install}}
 to_deploy = ${{to_deploy}}
 
 node {
-    stage('Pull Code') {
-        git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
-        echo "Pulled $git_url branch: $branch ."
+    if (hasCommitId()) {
+       stage("Pull Code with commitId $commit_id") {
+           sh "git checkout $commit_id -b tmp_branch"
+           echo "Pulled $git_url commit_id: $commit_id ."
+       }
+    } else {
+        stage("Pull Code with branch $branch") {
+            git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
+            echo "Pulled $git_url branch: $branch ."
+        }
     }
 
     if (to_tag) {
         stage("Tag to Git") {
             now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
-            tag_name = "tag_from_" + branch + "_for_" + env + "_at_" + now_time
+            tag_name = ''
+            if (hasCommitId()) {
+                tag_name = "tag_from_commitId_" + commit_id + "_for_" + env + "_at_" + now_time
+            } else {
+                tag_name = "tag_from_branch" + branch + "_for_" + env + "_at_" + now_time
+            }
             sh "git tag $tag_name"
             sh "git push origin $tag_name"
-            echo "Tag $tag_name from $branch has pushed to remote."
+            echo "Tag $tag_name has pushed to remote."
         }
     }
 
@@ -118,6 +131,13 @@ node {
             }
         }
     }
+}
+
+def hasCommitId() {
+    if (commit_id == "") {
+        return false;
+    }
+    return true;
 }
 
 def copyProjectFileToTargetHosts(host, port) {

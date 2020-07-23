@@ -36,6 +36,10 @@ Process diagram as below.
 
 - Complete auto tag function for git.
 
+### 2020-7-23
+
+- Complete checkout from git with commit_id.
+
 ## Quick Start
 
 1. Install Python version over 2.X;

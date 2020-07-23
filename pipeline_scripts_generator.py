@@ -31,6 +31,7 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{env}}", json.dumps(get_value_safty(params, 'env')))
     file_content = file_content.replace("${{app_home}}", json.dumps(get_value_safty(params, 'app_home') + "/$app_name-$env"))
     file_content = file_content.replace("${{branch}}", json.dumps(get_value_safty(params, 'branch')))
+    file_content = file_content.replace("${{commit_id}}", json.dumps(get_value_safty(params, 'commit_id')))
     file_content = file_content.replace("${{type}}", json.dumps(get_value_safty(params, 'type')))
     file_content = file_content.replace("${{project_version}}", json.dumps(get_value_safty(params, 'project_version')))
     file_content = file_content.replace("${{host_user}}", json.dumps(get_value_safty(params, 'host_user')))
