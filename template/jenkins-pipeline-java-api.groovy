@@ -43,7 +43,7 @@ node {
             if (hasCommitId()) {
                 tag_name = "tag_from_commitId_" + commit_id + "_for_" + env + "_at_" + now_time
             } else {
-                tag_name = "tag_from_branch" + branch + "_for_" + env + "_at_" + now_time
+                tag_name = "tag_from_branch_" + branch + "_for_" + env + "_at_" + now_time
             }
             sh "git tag $tag_name"
             sh "git push origin $tag_name"
