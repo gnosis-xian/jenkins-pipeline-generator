@@ -26,6 +26,7 @@ to_deploy = ${{to_deploy}}
 node {
     if (hasCommitId()) {
        stage("Pull Code with commitId $commit_id") {
+           delete_temp_branch()
            sh "git checkout $commit_id -b tmp__branch____"
            echo "Pulled $git_url commit_id: $commit_id ."
        }
