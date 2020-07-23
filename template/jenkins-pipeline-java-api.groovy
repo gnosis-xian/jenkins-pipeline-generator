@@ -26,7 +26,7 @@ to_deploy = ${{to_deploy}}
 node {
     if (hasCommitId()) {
        stage("Pull Code with commitId $commit_id") {
-           sh "git checkout $commit_id -b tmp_branch"
+           sh "git checkout $commit_id -b tmp__branch____"
            echo "Pulled $git_url commit_id: $commit_id ."
        }
     } else {
@@ -130,6 +130,23 @@ node {
                 }
             }
         }
+    }
+
+    stage("Clean after finished") {
+        clean_after_finished()
+    }
+}
+
+def clean_after_finished() {
+    delete_temp_branch()
+}
+
+def delete_temp_branch() {
+    try {
+        sh "git checkout master"
+        sh "git branch -d tmp__branch____"
+    } catch (Exception exp) {
+        echo "Delete temp branch throw exception"
     }
 }
 
