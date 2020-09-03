@@ -23,17 +23,22 @@ maven_package = ${{maven_package}}
 maven_install = ${{maven_install}}
 to_deploy = ${{to_deploy}}
 
+current_commit_id = ""
+current_host_ip = ""
+
 node {
     if (hasCommitId()) {
        stage("Pull Code with commitId $commit_id") {
            delete_temp_branch()
            sh "git checkout $commit_id -b tmp__branch____"
            echo "Pulled $git_url commit_id: $commit_id ."
+           doSomethingAfterPullFromGit()
        }
     } else {
         stage("Pull Code with branch $branch") {
             git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
             echo "Pulled $git_url branch: $branch ."
+            doSomethingAfterPullFromGit()
         }
     }
 
@@ -185,7 +190,12 @@ def killProjectProcessAtTargetHost(host, port) {
 
 def startupProjectProcessAtTargetHost(host, port) {
     echo "Startup $app_name on $host:$port"
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \" sudo nohup '$java_home' $java_opt -jar '$app_home'/'$app_name'.jar --spring.profiles.active='$env' > /dev/null 2>&1 & \" > '$app_home'/startup.sh \'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \" sudo nohup '$java_home' $java_opt -jar '$app_home'/'$app_name'.jar --git.commit.id='$current_commit_id' --host.info.ip='$current_host_ip' --spring.profiles.active='$env' > /dev/null 2>&1 & \" > '$app_home'/startup.sh \'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/startup.sh\'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/startup.sh\'"
+}
+
+def doSomethingAfterPullFromGit() {
+    current_commit_id = sh returnStdout: true, script: "echo -n `git rev-parse HEAD`"
+    current_host_ip = sh returnStdout: true, script: "echo -n `ip addr | grep 'ens\|eth' | grep inet | awk '{print $2}'`"
 }
