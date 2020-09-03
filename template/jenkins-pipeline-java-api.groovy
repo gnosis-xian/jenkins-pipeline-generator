@@ -197,5 +197,5 @@ def startupProjectProcessAtTargetHost(host, port) {
 
 def doSomethingAfterPullFromGit() {
     current_commit_id = sh returnStdout: true, script: "echo -n `git rev-parse HEAD`"
-    current_host_ip = sh returnStdout: true, script: "echo -n `ip addr | grep 'ens\|eth' | grep inet | awk '{print $2}' | awk -F '/' '{print $1}'`"
+    current_host_ip = sh returnStdout: true, script: "echo -n `ip addr | grep 'ens\\|eth' | grep inet | awk '{print \$2}' | awk -F '/' '{print \$1}'`"
 }
