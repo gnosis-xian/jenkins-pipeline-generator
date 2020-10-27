@@ -73,6 +73,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
     maven_package = get_value_safty(jenkins_propertie, 'maven_package')
     maven_install = get_value_safty(jenkins_propertie, 'maven_install')
     to_deploy = get_value_safty(jenkins_propertie, 'to_deploy')
+    increment = get_value_safty(jenkins_propertie, 'increment')
 
     jenkins_content = generate_pipeline(
         pro_type='java-api',
@@ -99,7 +100,8 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
         unit_test=unit_test,
         maven_package=maven_package,
         maven_install=maven_install,
-        to_deploy=to_deploy
+        to_deploy=to_deploy,
+        increment=increment
     )
 
     jenkins_pipeline_path = write_content_to_file(scm_url, namespace, "api", project_name, app_name, env, jenkins_content)
