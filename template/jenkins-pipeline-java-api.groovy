@@ -22,6 +22,7 @@ unit_test = ${{unit_test}}
 maven_package = ${{maven_package}}
 maven_install = ${{maven_install}}
 to_deploy = ${{to_deploy}}
+increment = ${{increment}}
 
 current_commit_id = ""
 
@@ -189,9 +190,10 @@ def killProjectProcessAtTargetHost(host, port) {
 
 def startupProjectProcessAtTargetHost(host, port) {
     echo "Startup $app_name on $host:$port"
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \" sudo nohup '$java_home' $java_opt -jar '$app_home'/'$app_name'.jar --git.commit.id='$current_commit_id' --host.info.ip='$host' --host.info.port='$port' --spring.profiles.active='$env' > /dev/null 2>&1 & \" > '$app_home'/startup.sh \'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \" sudo nohup '$java_home' $java_opt -jar '$app_home'/'$app_name'.jar --git.commit.id='$current_commit_id' --host.info.ip='$host' --host.info.port='$port' --spring.profiles.active='$env' --spring.shardingsphere.sharding.default-key-generator.props.worker.id='$increment' > /dev/null 2>&1 & \" > '$app_home'/startup.sh \'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/startup.sh\'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/startup.sh\'"
+    increment = increment + 1
 }
 
 def doSomethingAfterPullFromGit() {
