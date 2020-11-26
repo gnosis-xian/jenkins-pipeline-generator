@@ -19,6 +19,7 @@ def web_service(namespace, project_name, scm_url, jenkins_propertie):
     deploy_sleep_seconds = jenkins_propertie['deploy_sleep_seconds']
     to_tag = jenkins_propertie['to_tag']
     to_compile = jenkins_propertie['to_compile']
+    build_param = jenkins_propertie['build_param']
 
     jenkins_content = generate_pipeline(
         pro_type='web',
@@ -37,7 +38,8 @@ def web_service(namespace, project_name, scm_url, jenkins_propertie):
         is_backup=is_backup,
         deploy_sleep_seconds=deploy_sleep_seconds,
         to_tag=to_tag,
-        to_compile=to_compile
+        to_compile=to_compile,
+        build_param=build_param
     )
 
     jenkins_pipeline_path = write_content_to_file(scm_url, namespace, "web", project_name, app_name, env, jenkins_content)

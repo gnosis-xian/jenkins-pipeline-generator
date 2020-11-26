@@ -14,6 +14,7 @@ is_backup = ${{is_backup}}
 deploy_sleep_seconds = ${{deploy_sleep_seconds}}
 to_tag = ${{to_tag}}
 to_compile = ${{to_compile}}
+build_param = ${{build_param}}
 
 node {
     stage('Registry Settings') {
@@ -58,11 +59,11 @@ node {
                 case 'npm':
                     sh "$npm_home install"
                     sh "$npm_home run lint"
-                    sh "$npm_home run build"
+                    sh "$npm_home run build$build_param"
                     break;
                 case 'yarn':
                     sh "$yarn_home install"
-                    sh "$yarn_home build"
+                    sh "$yarn_home build$build_param"
                     break;
             }
         }

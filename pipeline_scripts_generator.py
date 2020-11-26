@@ -53,6 +53,7 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{npm_registry_url}}", json.dumps(get_value_safty(params, 'npm_registry_url')))
     file_content = file_content.replace("${{package_type}}", json.dumps(get_value_safty(params, 'package_type')))
     file_content = file_content.replace("${{to_compile}}", json.dumps(get_value_safty(params, 'to_compile')))
+    file_content = file_content.replace("${{build_param}}", json.dumps(get_value_safty(params, 'build_param')))
 
     return file_content
 
