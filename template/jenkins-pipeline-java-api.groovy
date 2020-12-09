@@ -120,6 +120,9 @@ node {
             stage('Make docker image') {
                 sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
                 current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
+                if (java_opt == "") {
+                    java_opt = "\"\""
+                }
                 generate_docker_file_command = "cat $dockerfile_project_home/dockerfiles/$dockerfile_project_dockerfile_name | \\\n" +
                         "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
                         "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
