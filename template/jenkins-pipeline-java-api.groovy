@@ -41,139 +41,145 @@ elk_kafka_cluster_list = ${{elk_kafka_cluster_list}}
 docker_repo = ${{docker_repo}}
 
 node {
-    if (hasCommitId()) {
-       stage("Pull Code with commitId $commit_id") {
-           delete_temp_branch()
-           sh "git checkout $commit_id -b tmp__branch____"
-           echo "Pulled $git_url commit_id: $commit_id ."
-           doSomethingAfterPullFromGit()
-       }
-    } else {
-        stage("Pull Code with branch $branch") {
-            git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
-            echo "Pulled $git_url branch: $branch ."
-            doSomethingAfterPullFromGit()
-        }
-    }
-
-    if (to_tag) {
-        stage("Tag to Git") {
-            now_time = get_now_time()
-            tag_name = ''
-            if (hasCommitId()) {
-                tag_name = "tag_from_commitId_" + commit_id + "_for_" + env + "_at_" + now_time
-            } else {
-                tag_name = "tag_from_branch_" + branch + "_for_" + env + "_at_" + now_time
+    try {
+        if (hasCommitId()) {
+           stage("Pull Code with commitId $commit_id") {
+               delete_temp_branch()
+               sh "git checkout $commit_id -b tmp__branch____"
+               echo "Pulled $git_url commit_id: $commit_id ."
+               doSomethingAfterPullFromGit()
+           }
+        } else {
+            stage("Pull Code with branch $branch") {
+                git branch: "$branch", credentialsId: "$git_credentials_id", url: "$git_url"
+                echo "Pulled $git_url branch: $branch ."
+                doSomethingAfterPullFromGit()
             }
-            sh "git tag $tag_name"
-            sh "git push origin $tag_name"
-            echo "Tag $tag_name has pushed to remote."
         }
-    }
 
-    if (code_static_check) {
-        stage('SonarQube analysis') {
-            echo "NOT IMPLEMENT NOW..."
+        if (to_tag) {
+            stage("Tag to Git") {
+                now_time = get_now_time()
+                tag_name = ''
+                if (hasCommitId()) {
+                    tag_name = "tag_from_commitId_" + commit_id + "_for_" + env + "_at_" + now_time
+                } else {
+                    tag_name = "tag_from_branch_" + branch + "_for_" + env + "_at_" + now_time
+                }
+                sh "git tag $tag_name"
+                sh "git push origin $tag_name"
+                echo "Tag $tag_name has pushed to remote."
+            }
         }
-    }
 
-    if (unit_test) {
-        stage('Unit Test') {
-            echo "NOT IMPLEMENT NOW..."
+        if (code_static_check) {
+            stage('SonarQube analysis') {
+                echo "NOT IMPLEMENT NOW..."
+            }
         }
-    }
 
-    if (is_backup) {
-        now_time = get_now_time()
-        target_hosts.each { e ->
+        if (unit_test) {
+            stage('Unit Test') {
+                echo "NOT IMPLEMENT NOW..."
+            }
+        }
+
+        if (is_backup) {
+            now_time = get_now_time()
+            target_hosts.each { e ->
+                host = e[0]
+                port = e[1]
+                stage("Backup on $host") {
+                    jar_path = "$app_home/$app_name" + ".jar"
+                    baked_jar_path = "$jar_path.$now_time"
+                    try {
+                        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port cp $jar_path $baked_jar_path"
+                        echo "Origin jar were backuped on $host:$baked_jar_path"
+                    } catch (Exception ignored) {
+                        echo "Origin jar not exist. Ignored backup..."
+                    }
+                }
+            }
+        }
+
+        if (maven_install) {
+            stage('Maven Install') {
+                sh "$maven_home clean install -DskipTest=true  --settings=$maven_settings_file_path"
+                echo "Maven Clean and Install $app_name:$branch"
+            }
+        }
+
+        if (maven_package) {
+            stage('Compile') {
+                sh "$maven_home clean package -Dmaven.test.skip=true --settings=$maven_settings_file_path -P $env"
+                echo 'Compile without test cases finished.'
+            }
+        }
+
+        if (with_docker) {
+            stage('Make docker image') {
+                sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
+                current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
+                generate_docker_file_command = "cat $dockerfile_project_home/dockerfiles/$dockerfile_project_dockerfile_name | \\\n" +
+                        "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
+                        "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
+                        "sed \"s/{{FILEBEATS_TOPIC}}/" + escape_char(elk_topic) + "/g\" | \\\n" +
+                        "sed \"s/{{FILEBEAT_KAFKA_CLUSTER}}/" + escape_char(elk_kafka_cluster_list) + "/g\" | \\\n" +
+                        "sed \"s/{{JAR_LOC}}/" + escape_char("./" + get_jar_relative_dir() + "/" + get_jar_name()) + "/g\" | \\\n" +
+                        "sed \"s/{{JVM_PARAMS}}/" + escape_char(java_opt) + "/g\" \\\n" +
+                        "> $current_project_dockerfile"
+                sh "cd $dockerfile_project_home && $generate_docker_file_command"
+                docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
+                image_name = "$docker_repo:$docker_image_tag_name"
+                sh "cd $WORKSPACE && docker build -f $current_project_dockerfile -t $image_name ."
+                sh "docker push $image_name"
+            }
+        }
+
+        if (to_deploy) {
+            target_hosts.each { e ->
+            count = 0;
             host = e[0]
             port = e[1]
-            stage("Backup on $host") {
-                jar_path = "$app_home/$app_name" + ".jar"
-                baked_jar_path = "$jar_path.$now_time"
-                try {
-                    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port cp $jar_path $baked_jar_path"
-                    echo "Origin jar were backuped on $host:$baked_jar_path"
-                } catch (Exception ignored) {
-                    echo "Origin jar not exist. Ignored backup..."
+
+            stage("Deploy to $host") {
+                    echo "Begin to deploy $app_name to $host:$port ..."
+
+                    /**
+                     * Copy project file to target hosts.
+                     */
+                    copyProjectFileToTargetHosts(host, port)
+
+                    /**
+                     * Shutdown project process on target hosts.
+                     */
+                    killProjectProcessAtTargetHost(host, port)
+
+                    /**
+                     * Startup project process on target hosts.
+                     */
+                    startupProjectProcessAtTargetHost(host, port)
+
+                    echo "Deploy to $host finished."
+
+                    /**
+                     * Wait will the previous project startup.
+                     */
+                    if (++count != target_hosts.size()) {
+                        echo "Wait $deploy_sleep_seconds and deploy application to next host."
+                        sleep(deploy_sleep_seconds)
+                    }
                 }
             }
         }
-    }
 
-    if (maven_install) {
-        stage('Maven Install') {
-            sh "$maven_home clean install -DskipTest=true  --settings=$maven_settings_file_path"
-            echo "Maven Clean and Install $app_name:$branch"
+        stage("Clean after finished") {
+            clean_after_finished()
         }
-    }
 
-    if (maven_package) {
-        stage('Compile') {
-            sh "$maven_home clean package -Dmaven.test.skip=true --settings=$maven_settings_file_path -P $env"
-            echo 'Compile without test cases finished.'
-        }
-    }
-
-    if (with_docker) {
-        stage('Make docker image') {
-            sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
-            current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
-            generate_docker_file_command = "cat $dockerfile_project_home/dockerfiles/$dockerfile_project_dockerfile_name | \\\n" +
-                    "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
-                    "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
-                    "sed \"s/{{FILEBEATS_TOPIC}}/" + escape_char(elk_topic) + "/g\" | \\\n" +
-                    "sed \"s/{{FILEBEAT_KAFKA_CLUSTER}}/" + escape_char(elk_kafka_cluster_list) + "/g\" | \\\n" +
-                    "sed \"s/{{JAR_LOC}}/" + escape_char("./" + get_jar_relative_dir() + "/" + get_jar_name()) + "/g\" | \\\n" +
-                    "sed \"s/{{JVM_PARAMS}}/" + escape_char(java_opt) + "/g\" \\\n" +
-                    "> $current_project_dockerfile"
-            sh "cd $dockerfile_project_home && $generate_docker_file_command"
-            docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
-            image_name = "$docker_repo:$docker_image_tag_name"
-            sh "cd $WORKSPACE && docker build -f $current_project_dockerfile -t $image_name ."
-            sh "docker push $image_name"
-        }
-    }
-
-    if (to_deploy) {
-        target_hosts.each { e ->
-        count = 0;
-        host = e[0]
-        port = e[1]
-
-        stage("Deploy to $host") {
-                echo "Begin to deploy $app_name to $host:$port ..."
-
-                /**
-                 * Copy project file to target hosts.
-                 */
-                copyProjectFileToTargetHosts(host, port)
-
-                /**
-                 * Shutdown project process on target hosts.
-                 */
-                killProjectProcessAtTargetHost(host, port)
-
-                /**
-                 * Startup project process on target hosts.
-                 */
-                startupProjectProcessAtTargetHost(host, port)
-
-                echo "Deploy to $host finished."
-
-                /**
-                 * Wait will the previous project startup.
-                 */
-                if (++count != target_hosts.size()) {
-                    echo "Wait $deploy_sleep_seconds and deploy application to next host."
-                    sleep(deploy_sleep_seconds)
-                }
-            }
-        }
-    }
-
-    stage("Clean after finished") {
+    } catch (Exception exp) {
         clean_after_finished()
+        throw exp
     }
 }
 
