@@ -133,7 +133,7 @@ node {
                         "> $current_project_dockerfile"
                 sh "cd $dockerfile_project_home && $generate_docker_file_command"
                 docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
-                image_name = "$docker_repo:$docker_image_tag_name"
+                image_name = "$docker_repo/$app_name:$docker_image_tag_name"
                 sh "cd $WORKSPACE && docker build -f $current_project_dockerfile -t $image_name ."
                 sh "docker push $image_name"
             }
