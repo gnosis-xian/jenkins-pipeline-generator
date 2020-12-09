@@ -57,7 +57,7 @@ def generate_pipeline(**params):
 
     # docker special.
     docker_info = params.get('docker_info')
-    if docker_info is not None:
+    if docker_info is not None and boolean_convertor(get_value_safty(docker_info, 'with_docker')) == 'true':
         file_content = file_content.replace("${{with_docker}}", boolean_convertor(get_value_safty(docker_info, 'with_docker')))
         file_content = file_content.replace("${{dockerfile_project_dockerfile_name}}", json.dumps(get_value_safty(docker_info, 'dockerfile_project_dockerfile_name')))
         file_content = file_content.replace("${{dockerfile_project_git_url}}", json.dumps(get_value_safty(docker_info, 'dockerfile_project_git_url')))
