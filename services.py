@@ -39,7 +39,8 @@ def web_service(namespace, project_name, scm_url, jenkins_propertie, docker_info
         deploy_sleep_seconds=deploy_sleep_seconds,
         to_tag=to_tag,
         to_compile=to_compile,
-        build_param=build_param
+        build_param=build_param,
+        docker_info=docker_info
     )
 
     jenkins_pipeline_path = write_content_to_file(scm_url, namespace, "web", project_name, app_name, env, jenkins_content)
