@@ -31,14 +31,14 @@ now_time = ""
 jar_location = ""
 jar_dir = ""
 
-with_docker={{with_docker}}
-dockerfile_project_dockerfile_name={{dockerfile_project_dockerfile_name}}
-dockerfile_project_git_url={{dockerfile_project_git_url}}
+with_docker = ${{with_docker}}
+dockerfile_project_dockerfile_name = ${{dockerfile_project_dockerfile_name}}
+dockerfile_project_git_url = ${{dockerfile_project_git_url}}
 dockerfile_project_name=get_dockerfile_project_name(dockerfile_project_git_url)
 dockerfile_project_home=""
-elk_topic={{elk_topic}}
-elk_kafka_cluster_list={{elk_kafka_cluster_list}}
-docker_repo ={{docker_repo}}
+elk_topic = ${{elk_topic}}
+elk_kafka_cluster_list = ${{elk_kafka_cluster_list}}
+docker_repo = ${{docker_repo}}
 
 node {
     if (hasCommitId()) {
