@@ -39,6 +39,7 @@ def go(request, type):
     data = request.get_data()
     req_json = json.loads(data)
     scm_urls = req_json['scm_urls']
+    docker_info = req_json['docker_info']
 
     namespace = req_json['namespace']
     project_name = req_json['project_name']
@@ -54,9 +55,9 @@ def go(request, type):
         for jenkins_propertie in jenkins_properties:
             file_path = ''
             if type == "web":
-                file_path = web_service(namespace, project_name, scm_url, jenkins_propertie)
+                file_path = web_service(namespace, project_name, scm_url, jenkins_propertie, docker_info)
             elif type == "api":
-                file_path = java_api_service(namespace, project_name, scm_url, jenkins_propertie)
+                file_path = java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker_info)
             file_path_list.append(file_path)
 
         push(scm_url)

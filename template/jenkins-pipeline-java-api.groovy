@@ -12,6 +12,7 @@ commit_id = ${{commit_id}}
 type = ${{type}}
 project_version = ${{project_version}}
 host_user = ${{host_user}}
+host_user_home_loc = get_host_user_home_loc()
 git_credentials_id = ${{git_credentials_id}}
 deploy_sleep_seconds = ${{deploy_sleep_seconds}}
 sleep_seconds_after_kill = ${{sleep_seconds_after_kill}}
@@ -25,6 +26,19 @@ to_deploy = ${{to_deploy}}
 increment = ${{increment}}
 
 current_commit_id = ""
+
+now_time = ""
+jar_location = ""
+jar_dir = ""
+
+with_docker={{with_docker}}
+dockerfile_project_dockerfile_name={{dockerfile_project_dockerfile_name}}
+dockerfile_project_git_url={{dockerfile_project_git_url}}
+dockerfile_project_name=get_dockerfile_project_name(dockerfile_project_git_url)
+dockerfile_project_home=""
+elk_topic={{elk_topic}}
+elk_kafka_cluster_list={{elk_kafka_cluster_list}}
+docker_repo ={{docker_repo}}
 
 node {
     if (hasCommitId()) {
@@ -44,7 +58,7 @@ node {
 
     if (to_tag) {
         stage("Tag to Git") {
-            now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
+            now_time = get_now_time()
             tag_name = ''
             if (hasCommitId()) {
                 tag_name = "tag_from_commitId_" + commit_id + "_for_" + env + "_at_" + now_time
@@ -70,7 +84,7 @@ node {
     }
 
     if (is_backup) {
-        now_time = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
+        now_time = get_now_time()
         target_hosts.each { e ->
             host = e[0]
             port = e[1]
@@ -98,6 +112,26 @@ node {
         stage('Compile') {
             sh "$maven_home clean package -Dmaven.test.skip=true --settings=$maven_settings_file_path -P $env"
             echo 'Compile without test cases finished.'
+        }
+    }
+
+    if (with_docker) {
+        stage('Make docker image') {
+            sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
+            current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
+            generate_docker_file_command = "cat $dockerfile_project_home/dockerfiles/$dockerfile_project_dockerfile_name | \\\n" +
+                    "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
+                    "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
+                    "sed \"s/{{FILEBEATS_TOPIC}}/" + escape_char(elk_topic) + "/g\" | \\\n" +
+                    "sed \"s/{{FILEBEAT_KAFKA_CLUSTER}}/" + escape_char(elk_kafka_cluster_list) + "/g\" | \\\n" +
+                    "sed \"s/{{JAR_LOC}}/" + escape_char("./" + get_jar_relative_dir() + "/" + get_jar_name()) + "/g\" | \\\n" +
+                    "sed \"s/{{JVM_PARAMS}}/" + escape_char(java_opt) + "/g\" \\\n" +
+                    "> $current_project_dockerfile"
+            sh "cd $dockerfile_project_home && $generate_docker_file_command"
+            docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
+            image_name = "$docker_repo:$docker_image_tag_name"
+            sh "cd $WORKSPACE && docker build -f $current_project_dockerfile -t $image_name ."
+            sh "docker push $image_name"
         }
     }
 
@@ -145,6 +179,7 @@ node {
 
 def clean_after_finished() {
     delete_temp_branch()
+    delete_workspace()
 }
 
 def delete_temp_branch() {
@@ -156,6 +191,10 @@ def delete_temp_branch() {
     }
 }
 
+def delete_workspace() {
+    sh "cd $WORKSPACE && rm -rf $dockerfile_project_name"
+}
+
 def hasCommitId() {
     if (commit_id == "") {
         return false;
@@ -164,7 +203,7 @@ def hasCommitId() {
 }
 
 def copyProjectFileToTargetHosts(host, port) {
-    scp_command = "scp -o StrictHostKeyChecking=no -P $port $WORKSPACE/$app_name-$type/target/$app_name-$type-$project_version" + ".jar" + " $host_user@$host:$app_home/$app_name" + ".jar"
+    scp_command = "scp -o StrictHostKeyChecking=no -P $port $jar_location $host_user@$host:$app_home/$app_name" + ".jar"
     echo "Copy $app_name $host:$port:$app_home. Command: $scp_command"
     try {
         sh "$scp_command"
@@ -198,4 +237,50 @@ def startupProjectProcessAtTargetHost(host, port) {
 
 def doSomethingAfterPullFromGit() {
     current_commit_id = sh returnStdout: true, script: "echo -n `git rev-parse HEAD`"
+    dockerfile_project_home="$WORKSPACE/$dockerfile_project_name"
+    jar_location = get_jar_location()
+    jar_dir = get_jar_dir()
+    now_time = get_now_time()
+}
+
+def get_dockerfile_project_name(String dockerfile_project_git_url) {
+    return dockerfile_project_git_url.substring(dockerfile_project_git_url.lastIndexOf('/') + 1, dockerfile_project_git_url.length() - 4)
+}
+
+def get_host_user_home_loc() {
+    if ("root".equals(host_user)) {
+        return "/$host_user"
+    } else {
+        return "/home/$host_user"
+    }
+}
+
+def get_now_time() {
+    result = ""
+    if ("".equals(now_time)) {
+        result = sh returnStdout: true, script: "echo -n `date +%Y%m%d%H%M%S`"
+        return result
+    }
+    return now_time
+}
+
+def escape_char(String str) {
+    return str.replace("\"", "\\\"")
+            .replace("/", "\\/")
+}
+
+def get_jar_location() {
+    return get_jar_dir() + "/" + get_jar_name()
+}
+
+def get_jar_dir() {
+    return "$WORKSPACE/$app_name-$type/target"
+}
+
+def get_jar_relative_dir() {
+    return "$app_name-$type/target"
+}
+
+def get_jar_name() {
+    return "$app_name-$type-$project_version" + ".jar"
 }

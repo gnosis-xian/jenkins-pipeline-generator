@@ -1,7 +1,7 @@
 from pipeline_scripts_generator import *
 from git_utils import *
 
-def web_service(namespace, project_name, scm_url, jenkins_propertie):
+def web_service(namespace, project_name, scm_url, jenkins_propertie, docker_info):
 
     git_url = jenkins_propertie['git_url']
     npm_home = jenkins_propertie['npm_home']
@@ -50,7 +50,7 @@ def web_service(namespace, project_name, scm_url, jenkins_propertie):
 
     return file_path
 
-def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
+def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker_info):
     git_url = get_value_safty(jenkins_propertie, 'git_url')
     maven_home = get_value_safty(jenkins_propertie, 'maven_home')
     maven_settings_file_path = get_value_safty(jenkins_propertie, 'maven_settings_file_path')
@@ -103,7 +103,8 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie):
         maven_package=maven_package,
         maven_install=maven_install,
         to_deploy=to_deploy,
-        increment=increment
+        increment=increment,
+        docker_info=docker_info
     )
 
     jenkins_pipeline_path = write_content_to_file(scm_url, namespace, "api", project_name, app_name, env, jenkins_content)

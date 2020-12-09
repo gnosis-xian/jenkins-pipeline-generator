@@ -55,6 +55,15 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{to_compile}}", json.dumps(get_value_safty(params, 'to_compile')))
     file_content = file_content.replace("${{build_param}}", json.dumps(get_value_safty(params, 'build_param')))
 
+    # docker special.
+    docker_info = params.get('docker_info')
+    if docker_info is not None:
+        file_content = file_content.replace("${{with_docker}}", boolean_convertor(get_value_safty(docker_info, 'with_docker')))
+        file_content = file_content.replace("${{dockerfile_project_dockerfile_name}}", json.dumps(get_value_safty(docker_info, 'dockerfile_project_dockerfile_name')))
+        file_content = file_content.replace("${{dockerfile_project_git_url}}", json.dumps(get_value_safty(docker_info, 'dockerfile_project_git_url')))
+        file_content = file_content.replace("${{elk_topic}}", json.dumps(get_value_safty(docker_info, 'elk_topic')))
+        file_content = file_content.replace("${{elk_kafka_cluster_list}}", json.dumps(get_value_safty(docker_info, 'elk_kafka_cluster_list')))
+        file_content = file_content.replace("${{docker_repo}}", json.dumps(get_value_safty(docker_info, 'docker_repo')))
     return file_content
 
 
