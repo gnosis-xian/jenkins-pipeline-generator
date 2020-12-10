@@ -253,8 +253,9 @@ def doSomethingAfterPullFromGit() {
 }
 
 def get_dockerfile_project_name(String dockerfile_project_git_url) {
-    if dockerfile_project_git_url == '':
+    if (dockerfile_project_git_url == '') {
         return ''
+    }
     return dockerfile_project_git_url.substring(dockerfile_project_git_url.lastIndexOf('/') + 1, dockerfile_project_git_url.length() - 4)
 }
 
