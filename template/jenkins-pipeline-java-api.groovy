@@ -116,7 +116,7 @@ node {
             }
         }
 
-        if (with_docker) {
+        if (with_docker && !maven_install) {
             stage('Make docker image') {
                 sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
                 current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
