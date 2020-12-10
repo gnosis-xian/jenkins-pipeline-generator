@@ -64,6 +64,8 @@ def generate_pipeline(**params):
         file_content = file_content.replace("${{elk_topic}}", json.dumps(get_value_safty(docker_info, 'elk_topic')))
         file_content = file_content.replace("${{elk_kafka_cluster_list}}", json.dumps(get_value_safty(docker_info, 'elk_kafka_cluster_list')))
         file_content = file_content.replace("${{docker_repo}}", json.dumps(get_value_safty(docker_info, 'docker_repo')))
+    else:
+        file_content = file_content.replace("${{with_docker}}", 'false')
     return file_content
 
 

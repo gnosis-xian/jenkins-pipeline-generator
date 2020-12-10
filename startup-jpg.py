@@ -39,7 +39,7 @@ def go(request, type):
     data = request.get_data()
     req_json = json.loads(data)
     scm_urls = req_json['scm_urls']
-    docker_info = req_json['docker_info']
+    docker_info = get_value_safty(req_json, 'docker_info')
 
     namespace = req_json['namespace']
     project_name = req_json['project_name']
