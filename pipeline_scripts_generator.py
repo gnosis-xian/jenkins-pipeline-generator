@@ -46,6 +46,8 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{maven_install}}", boolean_convertor(get_value_safty(params, 'maven_install')))
     file_content = file_content.replace("${{to_deploy}}", boolean_convertor(get_value_safty(params, 'to_deploy')))
     file_content = file_content.replace("${{increment}}", str(get_value_safty(params, 'increment')))
+    file_content = file_content.replace("${{app_port}}", str(get_value_safty(params, 'app_port')))
+    file_content = file_content.replace("${{docker_other_params}}", json.dumps(get_value_safty(params, 'docker_other_params')))
 
     # web special.
     file_content = file_content.replace("${{npm_home}}", json.dumps(get_value_safty(params, 'npm_home')))

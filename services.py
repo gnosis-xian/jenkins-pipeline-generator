@@ -77,6 +77,8 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
     maven_install = get_value_safty(jenkins_propertie, 'maven_install')
     to_deploy = get_value_safty(jenkins_propertie, 'to_deploy')
     increment = get_value_safty(jenkins_propertie, 'increment')
+    app_port = get_value_safty(jenkins_propertie, 'app_port')
+    docker_other_params = get_value_safty(jenkins_propertie, 'docker_other_params')
 
     jenkins_content = generate_pipeline(
         pro_type='java-api',
@@ -105,6 +107,8 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
         maven_install=maven_install,
         to_deploy=to_deploy,
         increment=increment,
+        app_port=app_port,
+        docker_other_params=docker_other_params,
         docker_info=docker_info
     )
 

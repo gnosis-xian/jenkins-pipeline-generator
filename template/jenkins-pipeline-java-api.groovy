@@ -33,12 +33,16 @@ jar_dir = ""
 
 with_docker = ${{with_docker}}
 dockerfile_project_dockerfile_name = ${{dockerfile_project_dockerfile_name}}
+setup_docker_resource_shell_name = "setup_docker_resource.sh"
 dockerfile_project_git_url = ${{dockerfile_project_git_url}}
 dockerfile_project_name=get_dockerfile_project_name(dockerfile_project_git_url)
 dockerfile_project_home=""
 elk_topic = ${{elk_topic}}
 elk_kafka_cluster_list = ${{elk_kafka_cluster_list}}
 docker_repo = ${{docker_repo}}
+image_name = ""
+app_port = ${{app_port}}
+docker_other_params = ${{docker_other_params}}
 
 node {
     try {
@@ -141,36 +145,54 @@ node {
 
         if (to_deploy) {
             target_hosts.each { e ->
-            count = 0;
-            host = e[0]
-            port = e[1]
-
-            stage("Deploy to $host") {
-                    echo "Begin to deploy $app_name to $host:$port ..."
-
-                    /**
-                     * Copy project file to target hosts.
-                     */
-                    copyProjectFileToTargetHosts(host, port)
-
-                    /**
-                     * Shutdown project process on target hosts.
-                     */
-                    killProjectProcessAtTargetHost(host, port)
-
-                    /**
-                     * Startup project process on target hosts.
-                     */
-                    startupProjectProcessAtTargetHost(host, port)
-
-                    echo "Deploy to $host finished."
-
-                    /**
-                     * Wait will the previous project startup.
-                     */
-                    if (++count != target_hosts.size()) {
-                        echo "Wait $deploy_sleep_seconds and deploy application to next host."
-                        sleep(deploy_sleep_seconds)
+                count = 0;
+                host = e[0]
+                port = e[1]
+                /**
+                 * Make dictionary for application.
+                 */
+                mkdirForProject(host, port)
+                if (with_docker) {
+                    stage("Deploy to $host with docker") {
+                        echo "Begin to deploy $app_name to $host:$port with docker..."
+                        /**
+                         * Check docker component is right working on target host.
+                         */
+                        checkOrInstallDockerOnTargetHost(host, port)
+                        containerName = "$app_name-$env"
+                        /**
+                         * Stop and remove container on target host.
+                         */
+                        stopDockerContainerAtTargetHost(host, port, containerName)
+                        /**
+                         * Startup application via docker.
+                         */
+                        startupDockerContainerAtTargetHost(host, port, containerName)
+                        echo "Deploy to $host with docker has finished."
+                    }
+                } else {
+                    stage("Deploy to $host") {
+                        echo "Begin to deploy $app_name to $host:$port ..."
+                        /**
+                         * Copy project file to target hosts.
+                         */
+                        copyProjectFileToTargetHosts(host, port)
+                        /**
+                         * Shutdown project process on target hosts.
+                         */
+                        killProjectProcessAtTargetHost(host, port)
+                        /**
+                         * Startup project process on target hosts.
+                         */
+                        startupProjectProcessAtTargetHost(host, port)
+                        echo "Deploy to $host finished."
+                        /**
+                         * Wait will the previous project startup.
+                         */
+                        if (++count != target_hosts.size()) {
+                            echo "Wait $deploy_sleep_seconds and deploy application to next host."
+                            sleep(deploy_sleep_seconds)
+                        }
                     }
                 }
             }
@@ -189,6 +211,11 @@ node {
 def clean_after_finished() {
     delete_temp_branch()
     delete_workspace()
+    delete_docker_temp()
+}
+
+def delete_docker_temp() {
+    sh "docker rmi $image_name"
 }
 
 def delete_temp_branch() {
@@ -295,4 +322,55 @@ def get_jar_relative_dir() {
 
 def get_jar_name() {
     return "$app_name-$type-$project_version" + ".jar"
+}
+
+def stopDockerContainerAtTargetHost(host, port, containerName) {
+    try {
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker stop $containerName"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker rm -f $containerName"
+    } catch (Exception e) {
+        echo "Container [$containerName] not running on $host:$port"
+        try {
+            sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker rm -f $containerName"
+        } catch (Exception ex) {
+            echo "Container [$containerName] not exist on $host:$port"
+        }
+    }
+}
+
+def startupDockerContainerAtTargetHost(host, port, containerName) {
+    jvm_param = java_opt
+    app_param = "--spring.profiles.active=$env --server.port=$app_port --spring.cloud.nacos.discovery.ip=$host --git.commit.id=$current_commit_id --host.info.ip=$host --host.info.port=$port --spring.shardingsphere.sharding.default-key-generator.props.worker.id=$increment"
+    docker_startup_command = "docker run -d --name $containerName \\\n" +
+            "-e JVM_PARAMS=\\\"$jvm_param\\\" \\\n" +
+            "-e APP_PARAMS=\\\"$app_param\\\" \\\n" +
+            "-p $app_port:$app_port \\\n" +
+            "$docker_other_params \\\n" +
+            "$image_name"
+    try {
+        docker_startup_filename = "startup_docker.sh"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"$docker_startup_command\" > '$app_home'/$docker_startup_filename \'"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sh $app_home/$docker_startup_filename"
+    } catch (Exception e) {
+        echo "Container [$containerName] startup fail on $host:$port. Kill process and try again."
+        killProjectProcessAtTargetHost(host, port)
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"$docker_startup_command\" > '$app_home'/$docker_startup_filename \'"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sh $app_home/$docker_startup_filename"
+    }
+    increment = increment + 1
+}
+
+def checkOrInstallDockerOnTargetHost(host, port) {
+    try {
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo systemctl start docker"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker ps -a"
+    } catch (Exception e) {
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port yum install -y docker"
+        sh "scp -o StrictHostKeyChecking=no -P $port $dockerfile_project_home/dockerfiles/setup_docker_resource.sh $host_user@$host:$host_user_home_loc/"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sh $host_user_home_loc/$setup_docker_resource_shell_name"
+    }
+}
+
+def mkdirForProject(host, port) {
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port mkdir -p $app_home"
 }
