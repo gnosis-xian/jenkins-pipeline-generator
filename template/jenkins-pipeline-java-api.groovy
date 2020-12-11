@@ -168,6 +168,7 @@ node {
                          * Startup application via docker.
                          */
                         startupDockerContainerAtTargetHost(host, port, containerName)
+                        cleanAtTargetHost(host, port)
                         echo "Deploy to $host with docker has finished."
                     }
                 } else {
@@ -377,4 +378,12 @@ def checkOrInstallDockerOnTargetHost(host, port) {
 
 def mkdirForProject(host, port) {
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port mkdir -p $app_home"
+}
+
+def cleanAtTargetHost(host, port) {
+    try {
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \"sudo docker images | grep $app_name | grep -v $image_name | awk '{print \$3}' | xargs docker rmi -f\""
+    } catch (Exception e) {
+        echo "Delete useless docker images on $host:$port failed.."
+    }
 }
