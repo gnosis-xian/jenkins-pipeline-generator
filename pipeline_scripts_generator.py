@@ -46,8 +46,6 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{maven_install}}", boolean_convertor(get_value_safty(params, 'maven_install')))
     file_content = file_content.replace("${{to_deploy}}", boolean_convertor(get_value_safty(params, 'to_deploy')))
     file_content = file_content.replace("${{increment}}", str(get_value_safty(params, 'increment')))
-    file_content = file_content.replace("${{app_port}}", str(get_value_safty(params, 'app_port')))
-    file_content = file_content.replace("${{docker_other_params}}", json.dumps(get_value_safty(params, 'docker_other_params')))
 
     # web special.
     file_content = file_content.replace("${{npm_home}}", json.dumps(get_value_safty(params, 'npm_home')))
@@ -66,6 +64,8 @@ def generate_pipeline(**params):
         file_content = file_content.replace("${{elk_topic}}", json.dumps(get_value_safty(docker_info, 'elk_topic')))
         file_content = file_content.replace("${{elk_kafka_cluster_list}}", json.dumps(get_value_safty(docker_info, 'elk_kafka_cluster_list')))
         file_content = file_content.replace("${{docker_repo}}", json.dumps(get_value_safty(docker_info, 'docker_repo')))
+        file_content = file_content.replace("${{app_port}}", str(get_value_safty(params, 'app_port')))
+        file_content = file_content.replace("${{docker_other_params}}", json.dumps(get_value_safty(docker_info, 'docker_other_params')))
     else:
         file_content = file_content.replace("${{with_docker}}", 'false')
         file_content = file_content.replace("${{dockerfile_project_dockerfile_name}}", "\"\"")
@@ -73,6 +73,8 @@ def generate_pipeline(**params):
         file_content = file_content.replace("${{elk_topic}}", "\"\"")
         file_content = file_content.replace("${{elk_kafka_cluster_list}}", "\"\"")
         file_content = file_content.replace("${{docker_repo}}", "\"\"")
+        file_content = file_content.replace("${{app_port}}", str(8080))
+        file_content = file_content.replace("${{docker_other_params}}", "\"\"")
     return file_content
 
 
