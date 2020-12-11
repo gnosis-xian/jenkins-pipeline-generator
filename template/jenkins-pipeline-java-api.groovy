@@ -215,7 +215,11 @@ def clean_after_finished() {
 }
 
 def delete_docker_temp() {
-    sh "docker rmi $image_name"
+    try {
+        sh "docker rmi $image_name"
+    } catch (Exception exp) {
+        echo "Delete docker image failed. Not exist."
+    }
 }
 
 def delete_temp_branch() {
