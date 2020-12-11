@@ -138,8 +138,8 @@ node {
                 sh "cd $dockerfile_project_home && $generate_docker_file_command"
                 docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
                 image_name = "$docker_repo/$app_name:$docker_image_tag_name"
-                sh "cd $WORKSPACE && docker build -f $current_project_dockerfile -t $image_name ."
-                sh "docker push $image_name"
+                sh "cd $WORKSPACE && sudo docker build -f $current_project_dockerfile -t $image_name ."
+                sh "sudo docker push $image_name"
             }
         }
 
@@ -217,7 +217,7 @@ def clean_after_finished() {
 
 def delete_docker_temp() {
     try {
-        sh "docker rmi $image_name"
+        sh "sudo docker rmi $image_name"
     } catch (Exception exp) {
         echo "Delete docker image failed. Not exist."
     }
@@ -331,12 +331,12 @@ def get_jar_name() {
 
 def stopDockerContainerAtTargetHost(host, port, containerName) {
     try {
-        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker stop $containerName"
-        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker rm -f $containerName"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo docker stop $containerName"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo docker rm -f $containerName"
     } catch (Exception e) {
         echo "Container [$containerName] not running on $host:$port"
         try {
-            sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker rm -f $containerName"
+            sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo docker rm -f $containerName"
         } catch (Exception ex) {
             echo "Container [$containerName] not exist on $host:$port"
         }
@@ -346,7 +346,7 @@ def stopDockerContainerAtTargetHost(host, port, containerName) {
 def startupDockerContainerAtTargetHost(host, port, containerName) {
     jvm_param = java_opt
     app_param = "--spring.profiles.active=$env --server.port=$app_port --spring.cloud.nacos.discovery.ip=$host --git.commit.id=$current_commit_id --host.info.ip=$host --host.info.port=$port --spring.shardingsphere.sharding.default-key-generator.props.worker.id=$increment"
-    docker_startup_command = "docker run -d --name $containerName \\\n" +
+    docker_startup_command = "sudo docker run -d --name $containerName \\\n" +
             "-e JVM_PARAMS=\\\"$jvm_param\\\" \\\n" +
             "-e APP_PARAMS=\\\"$app_param\\\" \\\n" +
             "-p $app_port:$app_port \\\n" +
@@ -368,9 +368,9 @@ def startupDockerContainerAtTargetHost(host, port, containerName) {
 def checkOrInstallDockerOnTargetHost(host, port) {
     try {
         sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo systemctl start docker"
-        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port docker ps -a"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo docker ps -a"
     } catch (Exception e) {
-        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port yum install -y docker"
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sudo yum install -y docker"
         sh "scp -o StrictHostKeyChecking=no -P $port $dockerfile_project_home/dockerfiles/setup_docker_resource.sh $host_user@$host:$host_user_home_loc/"
         sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port sh $host_user_home_loc/$setup_docker_resource_shell_name"
     }
