@@ -57,6 +57,7 @@ def generate_pipeline(**params):
 
     # docker special.
     docker_info = params.get('docker_info')
+    default_app_port = 8080
     if docker_info is not None and boolean_convertor(get_value_safty(docker_info, 'with_docker')) == 'true':
         file_content = file_content.replace("${{with_docker}}", boolean_convertor(get_value_safty(docker_info, 'with_docker')))
         file_content = file_content.replace("${{dockerfile_project_dockerfile_name}}", json.dumps(get_value_safty(docker_info, 'dockerfile_project_dockerfile_name')))
@@ -64,7 +65,9 @@ def generate_pipeline(**params):
         file_content = file_content.replace("${{elk_topic}}", json.dumps(get_value_safty(docker_info, 'elk_topic')))
         file_content = file_content.replace("${{elk_kafka_cluster_list}}", json.dumps(get_value_safty(docker_info, 'elk_kafka_cluster_list')))
         file_content = file_content.replace("${{docker_repo}}", json.dumps(get_value_safty(docker_info, 'docker_repo')))
-        file_content = file_content.replace("${{app_port}}", str(get_value_safty(params, 'app_port')))
+        app_port = get_value_safty(params, 'app_port')
+        app_port = default_app_port if app_port == '' else app_port
+        file_content = file_content.replace("${{app_port}}", str(app_port))
         file_content = file_content.replace("${{docker_other_params}}", json.dumps(get_value_safty(docker_info, 'docker_other_params')))
     else:
         file_content = file_content.replace("${{with_docker}}", 'false')
@@ -73,7 +76,7 @@ def generate_pipeline(**params):
         file_content = file_content.replace("${{elk_topic}}", "\"\"")
         file_content = file_content.replace("${{elk_kafka_cluster_list}}", "\"\"")
         file_content = file_content.replace("${{docker_repo}}", "\"\"")
-        file_content = file_content.replace("${{app_port}}", str(8080))
+        file_content = file_content.replace("${{app_port}}", str(default_app_port))
         file_content = file_content.replace("${{docker_other_params}}", "\"\"")
     return file_content
 
