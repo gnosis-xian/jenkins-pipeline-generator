@@ -16,6 +16,7 @@ host_user_home_loc = get_host_user_home_loc()
 git_credentials_id = ${{git_credentials_id}}
 deploy_sleep_seconds = ${{deploy_sleep_seconds}}
 sleep_seconds_after_kill = ${{sleep_seconds_after_kill}}
+detect_period_seconds = 15
 is_backup = ${{is_backup}}
 to_tag = ${{to_tag}}
 code_static_check = ${{code_static_check}}
@@ -257,15 +258,59 @@ def copyProjectFileToTargetHosts(host, port) {
 
 def killProjectProcessAtTargetHost(host, port) {
     echo "Kill $app_name process on $host:$port"
+
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -15 \\\$(ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -9 \\\$(ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown_force.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\"\" > '$app_home'/detect.sh\'"
+
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/shutdown.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/shutdown_force.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/detect.sh\'"
+
+    shutdown_app(host_user, host, port, app_home)
+
+    detect_times = 0
+    while (true) {
+        detect_times = detect_times + 1
+        detect_result = sh returnStdout: true, script: "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \\''$app_home'/detect.sh\\'"
+        if (detect_result == '') {
+            echo "Detect $app_name at $host:$port was shutdown."
+            break;
+        }
+        detect_result = detect_result.replace("\n", ",")
+        echo "Detect[Times: $detect_times] $app_name at $host:$port still running ($detect_result) "
+        if (detect_times > 3 && detect_times <= 6) {
+            shutdown_app_force(host_user, host, port, app_home)
+        }
+        if (detect_times > 6) {
+            notice_deploy_fail(host_user, host, port, app_home, app_name)
+            break;
+        }
+        sleep(detect_period_seconds)
+    }
+    echo "$detect_result"
+    echo "Sleep $sleep_seconds_after_kill seconds after kill application process."
+    sleep(sleep_seconds_after_kill)
+}
+
+def shutdown_app(host_user, host, port, app_home) {
     try {
         sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/shutdown.sh\'"
     } catch (Exception ignored) {
     }
+}
 
-    echo "Sleep $sleep_seconds_after_kill seconds after kill application process."
-    sleep(sleep_seconds_after_kill)
+def shutdown_app_force(host_user, host, port, app_home) {
+    echo "Force to shutdown $app_name at $host:$port"
+    try {
+        sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \''$app_home'/shutdown_force.sh\'"
+    } catch (Exception ignored) {
+    }
+}
+
+def notice_deploy_fail(host_user, host, port, app_home, app_name) {
+    msg = "[WARNING] $app_name at $host_user@$host:$port from $app_home deploy failed. Please check status or process manually."
+    echo "$msg"
 }
 
 def startupProjectProcessAtTargetHost(host, port) {
