@@ -124,7 +124,6 @@ node {
         if (with_docker && !maven_install) {
             stage('Make docker image') {
                 workspace_dir = sh returnStdout: true, script: "ls $WORKSPACE"
-                echo "$workspace_dir"
                 docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
                 image_name = "$docker_repo/$app_name:$docker_image_tag_name"
                 if (!workspace_dir.contains("Dockerfile")) {
