@@ -123,23 +123,28 @@ node {
 
         if (with_docker && !maven_install) {
             stage('Make docker image') {
-                sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
-                current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
-                if (java_opt == "") {
-                    java_opt = "\"\""
-                }
-                generate_docker_file_command = "cat $dockerfile_project_home/dockerfiles/$dockerfile_project_dockerfile_name | \\\n" +
-                        "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
-                        "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
-                        "sed \"s/{{FILEBEATS_TOPIC}}/" + escape_char(elk_topic) + "/g\" | \\\n" +
-                        "sed \"s/{{FILEBEAT_KAFKA_CLUSTER}}/" + escape_char(elk_kafka_cluster_list) + "/g\" | \\\n" +
-                        "sed \"s/{{JAR_LOC}}/" + escape_char("./" + get_jar_relative_dir() + "/" + get_jar_name()) + "/g\" | \\\n" +
-                        "sed \"s/{{JVM_PARAMS}}/" + escape_char(java_opt) + "/g\" \\\n" +
-                        "> $current_project_dockerfile"
-                sh "cd $dockerfile_project_home && $generate_docker_file_command"
+                dockerfile = sh returnStdout: true, script: "cd $WORKSPACE && ls | grep Dockerfile"
                 docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
                 image_name = "$docker_repo/$app_name:$docker_image_tag_name"
-                sh "cd $WORKSPACE && sudo docker build -f $current_project_dockerfile -t $image_name ."
+                if (dockerfile == '') {
+                    sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
+                    current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
+                    if (java_opt == "") {
+                        java_opt = "\"\""
+                    }
+                    generate_docker_file_command = "cat $dockerfile_project_home/dockerfiles/$dockerfile_project_dockerfile_name | \\\n" +
+                            "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
+                            "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
+                            "sed \"s/{{FILEBEATS_TOPIC}}/" + escape_char(elk_topic) + "/g\" | \\\n" +
+                            "sed \"s/{{FILEBEAT_KAFKA_CLUSTER}}/" + escape_char(elk_kafka_cluster_list) + "/g\" | \\\n" +
+                            "sed \"s/{{JAR_LOC}}/" + escape_char("./" + get_jar_relative_dir() + "/" + get_jar_name()) + "/g\" | \\\n" +
+                            "sed \"s/{{JVM_PARAMS}}/" + escape_char(java_opt) + "/g\" \\\n" +
+                            "> $current_project_dockerfile"
+                    sh "cd $dockerfile_project_home && $generate_docker_file_command"
+                    sh "cd $WORKSPACE && sudo docker build -f $current_project_dockerfile -t $image_name ."
+                } else {
+                    sh "cd $WORKSPACE && sudo docker build -t $image_name ."
+                }
                 sh "sudo docker push $image_name"
             }
         }
