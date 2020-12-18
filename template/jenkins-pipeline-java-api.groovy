@@ -123,10 +123,12 @@ node {
 
         if (with_docker && !maven_install) {
             stage('Make docker image') {
-                dockerfile = sh returnStdout: true, script: "cd $WORKSPACE && ls | grep Dockerfile"
+                workspace_dir = sh returnStdout: true, script: "ls $WORKSPACE"
+                echo "$workspace_dir"
                 docker_image_tag_name = "$env-$project_version-$now_time-$current_commit_id"
                 image_name = "$docker_repo/$app_name:$docker_image_tag_name"
-                if (dockerfile == '') {
+                if (!workspace_dir.contains("Dockerfile")) {
+                    echo "Dockerfile not exist. Generate Dockerfile."
                     sh "cd $WORKSPACE && git clone $dockerfile_project_git_url"
                     current_project_dockerfile = "$dockerfile_project_home/dockerfiles/springboot-share-" + app_name + ".dockerfile"
                     if (java_opt == "") {
@@ -143,6 +145,7 @@ node {
                     sh "cd $dockerfile_project_home && $generate_docker_file_command"
                     sh "cd $WORKSPACE && sudo docker build -f $current_project_dockerfile -t $image_name ."
                 } else {
+                    echo "Dockerfile exist. Use Dockerfile"
                     sh "cd $WORKSPACE && sudo docker build -t $image_name ."
                 }
                 sh "sudo docker push $image_name"
