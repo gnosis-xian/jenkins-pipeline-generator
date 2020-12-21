@@ -266,9 +266,9 @@ def copyProjectFileToTargetHosts(host, port) {
 def killProjectProcessAtTargetHost(host, port) {
     echo "Kill $app_name process on $host:$port"
 
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -15 \\\$(ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown.sh\'"
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -9 \\\$(ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown_force.sh\'"
-    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"ps -aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\"\" > '$app_home'/detect.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -15 \\\$(ps aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"sudo kill -9 \\\$(ps aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\")\" > '$app_home'/shutdown_force.sh\'"
+    sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'echo \"ps aux | grep java | grep '$app_name' | grep '$env' | awk \\\"{print \\\\\\\$2}\\\"\" > '$app_home'/detect.sh\'"
 
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/shutdown.sh\'"
     sh "ssh -o StrictHostKeyChecking=no $host_user@$host -p $port \'chmod +x '$app_home'/shutdown_force.sh\'"
