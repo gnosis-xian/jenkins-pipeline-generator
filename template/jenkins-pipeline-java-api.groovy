@@ -145,7 +145,16 @@ node {
                     sh "cd $WORKSPACE && sudo docker build -f $current_project_dockerfile -t $image_name ."
                 } else {
                     echo "Dockerfile exist. Use Dockerfile"
-                    sh "cd $WORKSPACE && sudo docker build -t $image_name ."
+                    generate_docker_file_command = "cat $WORKSPACE/Dockerfile | \\\n" +
+                            "sed \"s/{{APP_NAME}}/" + escape_char(app_name) + "/g\" | \\\n" +
+                            "sed \"s/{{APP_PARAMS}}/" + escape_char("--spring.profiles.active=$env") + "/g\" | \\\n" +
+                            "sed \"s/{{FILEBEATS_TOPIC}}/" + escape_char(elk_topic) + "/g\" | \\\n" +
+                            "sed \"s/{{FILEBEAT_KAFKA_CLUSTER}}/" + escape_char(elk_kafka_cluster_list) + "/g\" | \\\n" +
+                            "sed \"s/{{JAR_LOC}}/" + escape_char("./" + get_jar_relative_dir() + "/" + get_jar_name()) + "/g\" | \\\n" +
+                            "sed \"s/{{JVM_PARAMS}}/" + escape_char(java_opt) + "/g\" \\\n" +
+                            "> $WORKSPACE/Dockerfile_temp"
+                    sh "cd $WORKSPACE && $generate_docker_file_command"
+                    sh "cd $WORKSPACE && sudo docker build -f $WORKSPACE/Dockerfile_temp -t $image_name ."
                 }
                 sh "sudo docker push $image_name"
             }
