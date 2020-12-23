@@ -45,6 +45,10 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{maven_package}}", boolean_convertor(get_value_safty(params, 'maven_package')))
     file_content = file_content.replace("${{maven_install}}", boolean_convertor(get_value_safty(params, 'maven_install')))
     file_content = file_content.replace("${{to_deploy}}", boolean_convertor(get_value_safty(params, 'to_deploy')))
+    file_content = file_content.replace("${{deploy_stopping}}", boolean_convertor(get_value_safty(params, 'deploy_stopping')))
+    deploy_stopping_timeout_seconds = get_value_safty(params, 'deploy_stopping_timeout_seconds')
+    deploy_stopping_timeout_seconds = 1 if deploy_stopping_timeout_seconds == '' else deploy_stopping_timeout_seconds
+    file_content = file_content.replace("${{deploy_stopping_timeout_seconds}}", str(deploy_stopping_timeout_seconds))
     file_content = file_content.replace("${{increment}}", str(get_value_safty(params, 'increment')))
 
     # web special.
@@ -111,7 +115,6 @@ def generate_pipeline(**params):
 #         unit_test=unit_test,
 #         maven_package=maven_package
 #     )
-
 
 def boolean_convertor(boolean):
     if boolean:

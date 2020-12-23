@@ -24,6 +24,9 @@ unit_test = ${{unit_test}}
 maven_package = ${{maven_package}}
 maven_install = ${{maven_install}}
 to_deploy = ${{to_deploy}}
+deploy_stopping = ${{deploy_stopping}}
+deploy_stopping_timeout_seconds = ${{deploy_stopping_timeout_seconds}}
+deployed_count = 0
 increment = ${{increment}}
 
 current_commit_id = ""
@@ -160,9 +163,28 @@ node {
             }
         }
 
+        if (deploy_stopping && !maven_install) {
+            dir_pos = "/root/"
+            next_ls_seconds = 10
+            to_deploy_file_name = "goto_deploy"
+            stage("Wait while [$to_deploy_file_name] file exist in $dir_pos.") {
+                while (true) {
+                    dir_content = sh returnStdout: true, script: "ls $dir_pos"
+                    if (dir_content.contains(to_deploy_file_name)) {
+                        break;
+                    }
+                    if (deploy_stopping_timeout_seconds <= 0) {
+                        throw new Exception("Deploy stopping stage timeout. Increase deploy_stopping_timeout_seconds param and re-run this job.")
+                    }
+                    echo "Can not find [$to_deploy_file_name] file at $dir_pos. Wait while it exist. Next ls will after $next_ls_seconds seconds."
+                    sleep(next_ls_seconds)
+                    deploy_stopping_timeout_seconds = deploy_stopping_timeout_seconds - next_ls_seconds
+                }
+            }
+        }
+
         if (to_deploy) {
             target_hosts.each { e ->
-                count = 0;
                 host = e[0]
                 port = e[1]
                 /**
@@ -207,7 +229,7 @@ node {
                         /**
                          * Wait will the previous project startup.
                          */
-                        if (++count != target_hosts.size()) {
+                        if (++deployed_count != target_hosts.size()) {
                             echo "Wait $deploy_sleep_seconds and deploy application to next host."
                             sleep(deploy_sleep_seconds)
                         }

@@ -76,6 +76,8 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
     maven_package = get_value_safty(jenkins_propertie, 'maven_package')
     maven_install = get_value_safty(jenkins_propertie, 'maven_install')
     to_deploy = get_value_safty(jenkins_propertie, 'to_deploy')
+    deploy_stopping = get_value_safty(jenkins_propertie, 'deploy_stopping')
+    deploy_stopping_timeout_seconds = get_value_safty(jenkins_propertie, 'deploy_stopping_timeout_seconds')
     increment = get_value_safty(jenkins_propertie, 'increment')
     app_port = get_value_safty(jenkins_propertie, 'app_port')
     docker_other_params = get_value_safty(jenkins_propertie, 'docker_other_params')
@@ -106,6 +108,8 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
         maven_package=maven_package,
         maven_install=maven_install,
         to_deploy=to_deploy,
+        deploy_stopping=deploy_stopping,
+        deploy_stopping_timeout_seconds=deploy_stopping_timeout_seconds,
         increment=increment,
         app_port=app_port,
         docker_other_params=docker_other_params,
