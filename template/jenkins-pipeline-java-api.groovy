@@ -1,3 +1,7 @@
+/**
+ * Common parameters.
+ */
+// Parameters with http request input.
 git_url = ${{git_url}}
 maven_home = ${{maven_home}}
 maven_settings_file_path = ${{maven_settings_file_path}}
@@ -16,7 +20,6 @@ host_user_home_loc = get_host_user_home_loc()
 git_credentials_id = ${{git_credentials_id}}
 deploy_sleep_seconds = ${{deploy_sleep_seconds}}
 sleep_seconds_after_kill = ${{sleep_seconds_after_kill}}
-detect_period_seconds = 15
 is_backup = ${{is_backup}}
 to_tag = ${{to_tag}}
 code_static_check = ${{code_static_check}}
@@ -26,27 +29,40 @@ maven_install = ${{maven_install}}
 to_deploy = ${{to_deploy}}
 deploy_stopping = ${{deploy_stopping}}
 deploy_stopping_timeout_seconds = ${{deploy_stopping_timeout_seconds}}
-deployed_count = 0
 increment = ${{increment}}
 
-current_commit_id = ""
+// Can be changed parameters.
+detect_period_seconds = 15
 
+// Can not be changed parameters.
+deployed_count = 0
+current_commit_id = ""
 now_time = ""
 jar_location = ""
 jar_dir = ""
 
+
+/**
+ * Docker parameters.
+ */
+// Parameters with http request input.
 with_docker = ${{with_docker}}
 dockerfile_project_dockerfile_name = ${{dockerfile_project_dockerfile_name}}
-setup_docker_resource_shell_name = "setup_docker_resource.sh"
 dockerfile_project_git_url = ${{dockerfile_project_git_url}}
-dockerfile_project_name=get_dockerfile_project_name(dockerfile_project_git_url)
-dockerfile_project_home=""
+dockerfile_project_name = get_dockerfile_project_name(dockerfile_project_git_url)
 elk_topic = ${{elk_topic}}
 elk_kafka_cluster_list = ${{elk_kafka_cluster_list}}
 docker_repo = ${{docker_repo}}
-image_name = ""
 app_port = ${{app_port}}
 docker_other_params = ${{docker_other_params}}
+
+// Can be changed parameters.
+setup_docker_resource_shell_name = "setup_docker_resource.sh"
+
+// Can not be changed parameters.
+dockerfile_project_home = ""
+image_name = ""
+
 
 node {
     try {
