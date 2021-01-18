@@ -9,6 +9,7 @@ java_home = ${{java_home}}
 java_opt = ${{java_opt}}
 target_hosts = ${{target_hosts}}
 app_name = ${{app_name}}
+project_child_path = ${{project_child_path}}
 env = ${{env}}
 app_home = ${{app_home}}
 branch = ${{branch}}

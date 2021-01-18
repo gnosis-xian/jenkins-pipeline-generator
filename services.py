@@ -59,6 +59,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
     java_opt = get_value_safty(jenkins_propertie, 'java_opt')
     target_hosts = get_value_safty(jenkins_propertie, 'target_hosts')
     app_name = get_value_safty(jenkins_propertie, 'app_name')
+    project_child_path = get_value_safty(jenkins_propertie, 'project_child_path')
     env = get_value_safty(jenkins_propertie, 'env')
     app_home = get_value_safty(jenkins_propertie, 'app_home')
     branch = get_value_safty(jenkins_propertie, 'branch')
@@ -91,6 +92,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
         java_opt=java_opt,
         target_hosts=target_hosts,
         app_name=app_name,
+        project_child_path=project_child_path,
         env=env,
         app_home=app_home,
         branch=branch,
