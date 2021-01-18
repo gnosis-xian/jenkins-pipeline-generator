@@ -418,11 +418,19 @@ def get_jar_location() {
 }
 
 def get_jar_dir() {
-    return "$WORKSPACE/$app_name-$type/target"
+    if (project_child_path == "") {
+        return "$WORKSPACE/$app_name-$type/target"
+    } else {
+        return "$WORKSPACE/$project_child_path/$app_name-$type/target"
+    }
 }
 
 def get_jar_relative_dir() {
-    return "$app_name-$type/target"
+    if (project_child_path == "") {
+        return "$app_name-$type/target"
+    } else {
+        return "$project_child_path/$app_name-$type/target"
+    }
 }
 
 def get_jar_name() {
