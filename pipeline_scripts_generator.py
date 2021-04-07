@@ -52,6 +52,11 @@ def generate_pipeline(**params):
     file_content = file_content.replace("${{deploy_stopping_timeout_seconds}}", str(deploy_stopping_timeout_seconds))
     file_content = file_content.replace("${{increment}}", str(get_value_safty(params, 'increment')))
 
+    file_content = file_content.replace("${{copy_jar_to_hosts}}", boolean_convertor(get_value_safty(params, 'copy_jar_to_hosts')))
+    file_content = file_content.replace("${{copy_hosts}}", json.dumps(get_value_safty(params, 'copy_hosts')))
+    file_content = file_content.replace("${{copy_host_user}}", json.dumps(get_value_safty(params, 'copy_host_user')))
+    file_content = file_content.replace("${{copy_host_dir}}", json.dumps(get_value_safty(params, 'copy_host_dir')))
+
     # web special.
     file_content = file_content.replace("${{npm_home}}", json.dumps(get_value_safty(params, 'npm_home')))
     file_content = file_content.replace("${{yarn_home}}", json.dumps(get_value_safty(params, 'yarn_home')))

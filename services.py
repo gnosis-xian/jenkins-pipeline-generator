@@ -80,6 +80,10 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
     deploy_stopping = get_value_safty(jenkins_propertie, 'deploy_stopping')
     deploy_stopping_timeout_seconds = get_value_safty(jenkins_propertie, 'deploy_stopping_timeout_seconds')
     increment = get_value_safty(jenkins_propertie, 'increment')
+    copy_jar_to_hosts = get_value_safty(jenkins_propertie, 'copy_jar_to_hosts')
+    copy_hosts = get_value_safty(jenkins_propertie, 'copy_hosts')
+    copy_host_user = get_value_safty(jenkins_propertie, 'copy_host_user')
+    copy_host_dir = get_value_safty(jenkins_propertie, 'copy_host_dir')
     app_port = get_value_safty(jenkins_propertie, 'app_port')
     docker_other_params = get_value_safty(jenkins_propertie, 'docker_other_params')
 
@@ -113,6 +117,10 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
         deploy_stopping=deploy_stopping,
         deploy_stopping_timeout_seconds=deploy_stopping_timeout_seconds,
         increment=increment,
+        copy_jar_to_hosts=copy_jar_to_hosts,
+        copy_hosts=copy_hosts,
+        copy_host_user=copy_host_user,
+        copy_host_dir=copy_host_dir,
         app_port=app_port,
         docker_other_params=docker_other_params,
         docker_info=docker_info

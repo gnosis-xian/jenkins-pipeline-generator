@@ -32,6 +32,12 @@ deploy_stopping = ${{deploy_stopping}}
 deploy_stopping_timeout_seconds = ${{deploy_stopping_timeout_seconds}}
 increment = ${{increment}}
 
+// Copy jar to other hosts.
+copy_jar_to_hosts = ${{copy_jar_to_hosts}}
+copy_hosts = ${{copy_hosts}}
+copy_host_user = ${{copy_host_user}}
+copy_host_dir = ${{copy_host_dir}}
+
 // Can be changed parameters.
 detect_period_seconds = 15
 
@@ -41,6 +47,7 @@ current_commit_id = ""
 now_time = ""
 jar_location = ""
 jar_dir = ""
+jar_name = ""
 
 
 /**
@@ -255,6 +262,18 @@ node {
             }
         }
 
+        if (copy_jar_to_hosts) {
+            stage("Copy jar to hosts.") {
+                copy_hosts.each { e ->
+                    host = e[0]
+                    port = e[1]
+                    echo "Begin copy jar to $host."
+                    sh "ssh -o StrictHostKeyChecking=no $copy_host_user@$host -p $port mkdir -p $copy_host_dir"
+                    sh "scp -o StrictHostKeyChecking=no -P $port $jar_location $copy_host_user@$host:$copy_host_dir/$jar_name"
+                }
+            }
+        }
+
         stage("Clean after finished") {
             clean_after_finished()
         }
@@ -381,6 +400,7 @@ def doSomethingAfterPullFromGit() {
     dockerfile_project_home="$WORKSPACE/$dockerfile_project_name"
     jar_location = get_jar_location()
     jar_dir = get_jar_dir()
+    jar_name = get_jar_name()
     now_time = get_now_time()
 }
 
