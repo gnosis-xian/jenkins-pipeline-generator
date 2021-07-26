@@ -51,7 +51,7 @@ def web_service(namespace, project_name, scm_url, jenkins_propertie, docker_info
 
     return file_path
 
-def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker_info):
+def java_api_service(java_type, namespace, project_name, scm_url, jenkins_propertie, docker_info):
     git_url = get_value_safty(jenkins_propertie, 'git_url')
     maven_home = get_value_safty(jenkins_propertie, 'maven_home')
     maven_settings_file_path = get_value_safty(jenkins_propertie, 'maven_settings_file_path')
@@ -88,7 +88,7 @@ def java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker
     docker_other_params = get_value_safty(jenkins_propertie, 'docker_other_params')
 
     jenkins_content = generate_pipeline(
-        pro_type='java-api',
+        pro_type=java_type,
         git_url=git_url,
         maven_home=maven_home,
         maven_settings_file_path=maven_settings_file_path,

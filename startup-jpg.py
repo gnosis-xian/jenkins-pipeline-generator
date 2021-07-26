@@ -25,7 +25,17 @@ def gen_jenkins_pipeline_web():
 def gen_jenkins_pipeline_api():
     resultBody = None
     try:
-        resultBody = go(request, "api")
+        resultBody = go(request, "java-api")
+    except Exception as e:
+        print(e)
+        remove_lock()
+    return resultBody
+
+@app.route('/gen-jenkins-pipeline/java-api-v2', methods=['POST'])
+def gen_jenkins_pipeline_api_v2():
+    resultBody = None
+    try:
+        resultBody = go(request, "java-api-v2")
     except Exception as e:
         print(e)
         remove_lock()
@@ -56,8 +66,8 @@ def go(request, type):
             file_path = ''
             if type == "web":
                 file_path = web_service(namespace, project_name, scm_url, jenkins_propertie, docker_info)
-            elif type == "api":
-                file_path = java_api_service(namespace, project_name, scm_url, jenkins_propertie, docker_info)
+            elif type.startswith("java-api"):
+                file_path = java_api_service(type, namespace, project_name, scm_url, jenkins_propertie, docker_info)
             file_path_list.append(file_path)
 
         push(scm_url)
