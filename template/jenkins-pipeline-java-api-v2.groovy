@@ -438,7 +438,7 @@ def get_jar_location() {
     if (package_jar_location == "") {
         return get_jar_dir() + "/" + get_jar_name()
     } else {
-        return package_jar_location
+        return "$WORKSPACE/$package_jar_location"
     }
 }
 
